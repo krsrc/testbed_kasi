@@ -1,4 +1,24 @@
-# Deployment of Kubernetes
+# Deployment of Rancher and Kubernetes
+
+> [!NOTE]
+> [Setting up a High-availability RKE Kubernetes Cluster](https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/rke1-for-rancher)
+
+## Terminology
+
+- **Rancher server**: manages Kubernetes cluster through Rancher's user interface
+- **RKE**(Rancher Kubernetes Engine): certified Kubernetes distribution and CLI/library
+- **Helm**: Kubernetes package manager 
+
+## Note
+
+- For RKE clusters, **three nodes** are required to achieve a high-availability cluster
+  - You should set up a high-availability Kubernetes cluster, then install Rancher on it
+ 
+## Requirements
+
+- Rancher UI works best in Firefox- or Chromium-based browsers
+- All supported operating systems are 64-bit x86.
+  - Rancher should work with any modern Linux distribution.
 
 <!-- 
 This document includes items on UNIST 
@@ -6,8 +26,6 @@ This document includes items on UNIST
 -->
 
 ## How to install Rancher 
-> [!NOTE]
-> [Setting up a High-availability RKE Kubernetes Cluster](https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/rke1-for-rancher)
 
 ### Preinstall
 ```

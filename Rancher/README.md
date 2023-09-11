@@ -1,8 +1,5 @@
 # Deployment of Rancher and Kubernetes
 
-> [!NOTE]
-> [Setting up a High-availability RKE Kubernetes Cluster](https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/rke1-for-rancher)
-
 ## Terminology
 
 - **Rancher server**: manages Kubernetes cluster through Rancher's user interface
@@ -19,6 +16,92 @@
 - Rancher UI works best in Firefox- or Chromium-based browsers
 - All supported operating systems are 64-bit x86.
   - Rancher should work with any modern Linux distribution.
+
+## Install
+
+> [!NOTE]
+> [Setting up a High-availability RKE Kubernetes Cluster](https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/rke1-for-rancher)
+
+### Installing Kubernetes
+
+Install `kubectl`, a Kubernetes command-line tool.
+
+> [!NOTE]
+> [Install and Set Up kubectl on Linux](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+
+**Install `kubectl` on Linux**
+
+```
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+
+> [!NOTE]
+> To download a specific version
+> ```
+> curl -LO "https://dl.k8s.io/release/v1.28.1/bin/linux/amd64/kubectl
+> ```
+
+Validate the binary
+
+```
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+```
+
+Install kubectl
+```
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+Test to ensure the version you installed is up-to-date
+```
+kubectl version --client
+```
+
+(optional) for detailed view of version
+```
+kubectl version --client --output=yaml
+```
+
+Install `RKE`, the Rancher Kubernetes Engine, a Kubernetes distribution and command-line tool.
+
+**RKE Kubernetes Installation**
+
+Download the RKE binary
+
+[Latest available RKE release](https://github.com/rancher/rke/#latest-release)
+
+[Release v1.4.8](https://github.com/rancher/rke/releases/tag/v1.4.8)
+
+Rename it `rke` and make executable
+
+```
+mv rke_linux-amd64 rke
+chmod +x rke
+```
+
+Confirm that RKE is now executable
+
+```
+rke --version
+```
+
+Creating the cluster configuratio file
+
+```
+rke config --name cluster.yml
+```
+
+> [!IMPORTANT]
+> **High Availability**
+> RKE is HA ready, you can specify more than one controlplane node in the cluster.yml file. RKE will deploy master components on all of these nodes and the kubelets are configured to connect to 127.0.0.1:6443 by default which is the address of nginx-proxy service that proxy requests to all master nodes.
+> To create an HA cluster, specify more than one host with role controlplane.
+
+
+
+
+
+
 
 <!-- 
 This document includes items on UNIST 

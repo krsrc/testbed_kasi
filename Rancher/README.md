@@ -65,6 +65,9 @@ kubectl version --client --output=yaml
 
 Install `RKE`, the Rancher Kubernetes Engine, a Kubernetes distribution and command-line tool.
 
+> [!NOTE]
+> [RKE Kubernetes Installation](https://rke.docs.rancher.com/installation)
+
 **RKE Kubernetes Installation**
 
 Download the RKE binary

@@ -316,7 +316,8 @@ helm install rancher rancher-latest/rancher   --namespace cattle-system   --set 
 
 [useful commands](https://platform9.com/docs/PEC/troubleshooting--useful-kubernetes-commands)
 
+<!--
 ### CA
 https://www.kubeworks.net/post/cert-manager%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%A7%80-%EC%95%8A%EA%B3%A0-open-ssl%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-%EC%83%9D%EC%84%B1%ED%95%9C-ca-%ED%82%A4-%EC%9D%B8%EC%A6%9D%EC%84%9C-%EC%84%9C%EB%B2%84-%ED%82%A4-%EC%9D%B8%EC%A6%9D%EC%84%9C%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-rancher%EB%A5%BC-%EC%84%A4%EC%B9%98-%EA%B5%AC%EB%8F%99%ED%95%9C%EB%8B%A4-%EA%B8%B0%EB%B3%B8%EA%B0%92%EC%9D%80-cert
-
+-->
 

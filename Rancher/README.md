@@ -94,7 +94,9 @@ rke config --name cluster.yml
 
 > [!IMPORTANT]
 > **High Availability**
+> 
 > RKE is HA ready, you can specify more than one controlplane node in the cluster.yml file. RKE will deploy master components on all of these nodes and the kubelets are configured to connect to 127.0.0.1:6443 by default which is the address of nginx-proxy service that proxy requests to all master nodes.
+> 
 > To create an HA cluster, specify more than one host with role controlplane.
 
 

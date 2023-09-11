@@ -103,7 +103,7 @@ rke config --name cluster.yml
 
 
 
-
+# Documentation from Hyunwoo Kang (UNIST installation)
 
 <!-- 
 This document includes items on UNIST 

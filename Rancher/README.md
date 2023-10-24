@@ -331,7 +331,7 @@ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address
 
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
-kubectl reate namespace cattle-system
+kubectl create namespace cattle-system
 ```
 
 For CAs only

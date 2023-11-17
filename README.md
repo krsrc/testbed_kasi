@@ -2,7 +2,7 @@
 
 ## Resources
 
-__ in KASI __
+**in KASI**
 1. Master of Kubernetes cluster
   - kmtnet-kasi (x.x.x.1)
   - Dell
@@ -16,7 +16,7 @@ __ in KASI __
   - HP
   - Ubuntu 22.x
 
-** in UNIST **
+**in UNIST**
 1. ska00 (Desktop 1): for AAI
    - info: HDD 13TB, RAM 128GB, 16 cores
    - system : Ubuntu 22.04

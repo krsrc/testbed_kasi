@@ -2,7 +2,7 @@
 
 ## Resources
 
-** in KASI **
+__ in KASI __
 1. Master of Kubernetes cluster
   - kmtnet-kasi (x.x.x.1)
   - Dell

@@ -32,7 +32,7 @@
 6. ska04 (Desktop 5): for slave 4
    - system: HDD, RAM, cores
    - OS : Ubuntu 22.xx
-   - 
+     
 ## Milestones
 
 - [x] Deploy `Kubernetes` (1 master + 2 slaves)

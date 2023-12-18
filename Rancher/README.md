@@ -139,7 +139,7 @@ sudo swapoff -a
 Comment out the filesystem item related to swap in `/etc/fstab`, or:
 
 ```bash
-sudo sed -i '/swqp/d' /etc/fstab
+sudo sed -i '/swap/d' /etc/fstab
 ```
 
 Check swap off:

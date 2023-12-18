@@ -2,6 +2,8 @@
 
 ## Resources
 
+
+
 **in KASI**
 1. kmtnet-kasi : Master of Kubernetes cluster (x.x.x.1)
    - PC : Dell
@@ -13,7 +15,7 @@
    - PC : HP
    - OS : Ubuntu 22.x
 
-**in UNIST**
+<!-- **in UNIST**
 1. ska00 (Desktop 1): for AAI
    - system: HDD 13TB, RAM 128GB, 16 cores
    - OS: Ubuntu 22.xx
@@ -31,14 +33,14 @@
    - OS: Ubuntu 22.xx
 6. ska04 (Desktop 5): for slave 4
    - system: HDD, RAM, cores
-   - OS : Ubuntu 22.xx
+   - OS : Ubuntu 22.xx -->
      
 ## Milestones
 
 - [x] Deploy `Kubernetes` (1 master + 2 slaves)
   - [x] Install `Kubernetes` on 210
 - [x] Deploy `Rancher`
-- [ ] Deploy `JupyterHub` with `Rancher`
+- [x] Deploy `JupyterHub` with `Rancher`
 - [ ] Deploy `INDIGO IAM`
 - [ ] Connect `INDIGO IAM` and KAFE
 - [ ] Connect `JupyterHub` and `INDIGO IAM`

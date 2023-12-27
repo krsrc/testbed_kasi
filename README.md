@@ -2,14 +2,14 @@
 
 ## Resources
 
-| No.  | Host name     | Role       | Ubuntu    | IP1     | IP2     |
-| :--: | :------------ | :--------- | :-------- | :------ | :------ |
-| `01` | `kmtnet-kasi` | K3s master | `22.04.3` | `0.210` | `10.1`  |
-| `02` | `traodev2`    | K3s worker | `18.04.6` | `0.21`  | `10.11` |
-| `03` | `traodev3`    | K3s worker | `22.04.3` | `0.22`  | `10.12` |
-| `04` | `krsrc04`     | K3s worker | `22.04.3` | `n/a`   | `10.14` |
-| `05` | `krsrc05`     | K3s worker | `22.04.3` | `n/a`   | `10.15` |
-| `06` | `krsrc06`     | AAI        | `22.04.3` | `0.206` | `n/a`   |
+| ID        | Host name     | Role       | Ubuntu    | IP1     | IP2     |
+| :-------: | :------------ | :--------- | :-------- | :------ | :------ |
+| `krsrc01` | `kmtnet-kasi` | K3s master | `22.04.3` | `0.210` | `10.1`  |
+| `krsrc02` | `traodev2`    | K3s worker | `18.04.6` | `0.21`  | `10.11` |
+| `krsrc03` | `traodev3`    | K3s worker | `22.04.3` | `0.22`  | `10.12` |
+| `krsrc04` | `krsrc04`     | K3s worker | `22.04.3` | `n/a`   | `10.14` |
+| `krsrc05` | `krsrc05`     | K3s worker | `22.04.3` | `n/a`   | `10.15` |
+| `krsrc06` | `krsrc06`     | AAI        | `22.04.3` | `0.206` | `n/a`   |
 
 <!-- | No. | Host name   | Role       | Ubuntu  | IP1   | IP2   | RAM   | CPU         | Clock | Ncore |
 | --- | ----------- | ---------- | ------- | ----- | ----- | :---: | ----------- | ----- | ----- |
@@ -42,16 +42,29 @@
 
 ## Milestones
 
-- [x] Deploy `Kubernetes` (1 master + 2 slaves)
-  - [x] Install `Kubernetes` on 210
+### Rancher - K3s cluster
+
+- [x] Deploy `K3s cluster` (1 master + 4 workers)
+  - [x] Install `K3s` on `krsrc01`
+  - [x] Install `K3s` for agent on `krsrc02:05`
 - [x] Deploy `Rancher`
-- [x] Deploy `JupyterHub` with `Rancher`
-- [ ] Deploy `INDIGO IAM`
-- [ ] Connect `INDIGO IAM` and KAFE
-- [ ] Connect `JupyterHub` and `INDIGO IAM`
+  - [x] Install `cert-manager`
+  - [x] Install `rancher`
+- [ ] Deploy `JupyterHub`
 - [ ] Deploy `CANFAR`
-- [ ] Connect `CANFAR` and `INDIO IAM`
 
-## Links
+### AAI
 
-- Documentation: [Deployment of Rancher K8s cluster](Rancher/README.md)
+- [x] Connect domain
+- [x] Deploy `nginx`
+  - [x] Install `nginx`
+  - [ ] Apply SSL CA for domain
+  - [ ] Set port forwading for https connection
+- [ ] Deploy `MarinaDB`
+- [ ] Deploy `Indigo IAM`
+
+## Documentations
+
+- [Basic setup of Ubuntu](<Ubuntu/README.md>)
+- [Rancher on K3s cluster](<Rancher/README.md>)
+- [Indigo IAM](<INDIGO IAM/README.md>)

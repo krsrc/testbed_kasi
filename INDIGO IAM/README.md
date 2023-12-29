@@ -1,84 +1,95 @@
-# Outline
+# Deploy Indigo IAM for AAI proxy
 
 - where: krsrc06
 
-# Installation
+## Preparation
+
+> [!IMPORTANT]
+> Since the terminal commands in this document require root privileges, it is assumed that `sudo bash -` has been executed.
+
+### Domain mapping
+
+ask to KASI IT team,  
+`krsrc.kasi.re.kr` is mapped to `hanul` server, which is a gateway of krsrs testbed
+
+### Domain certificate preparation
+
+Request a domain certificate for `kasi.re.kr` from the KASI IT team.
+The received certificate consists of `cert.pem` and `key.pem`.
+Remove password from `key.pem`.
+
+```bash
+openssh rsa -in key.pem -out cert.key
+```
+
+When configure nginx,
+
+```bash
+ssl_certificate     cert.pem;
+ssl_certificate_key cert.key;
+```
+
+### Configure ufw of gateway
+
+> [!NOTE]
+> <https://www.cyberciti.biz/faq/how-to-configure-ufw-to-forward-port-80443-to-internal-server-hosted-on-lan/>
+
+add rules of ufw.
+
+```bash
+vi /etc/ufw/before.rules
+
+# NAT table rules
+*nat
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-F
+-A PREROUTING -i em1 -d ..27.27 -p tcp --dport 80 -j DNAT --to-destination ..0.206:80
+-A PREROUTING -i em1 -d ..27.27 -p tcp --dport 443 -j DNAT --to-destination ..0.206:443
+-A POSTROUTING -o em1 -j MASQUERADE
+COMMIT
+```
+
+enable port forwading.
+
+```bash
+vi /etc/sysctl.conf
+
+net.ipv4.ip_forward=1
+
+sysctl -p
+```
+
+restart the firewall.
+
+```bash
+systemctl restart ufw
+
+ufw allow proto tcp from any to ..27.27 port 80
+ufw allow proto tcp from any to ..27.27 port 443
+```
+
+verify new setting.
+
+```bash
+ufw status
+iptables -t nat -L -n -v
+```
+
+## Installation
 
 > [!NOTE]
 > https://indigo-iam.github.io/v/v1.8.3/docs/getting-started/
+
+### Install Nginx
 
 ```bash
 sudo apt update
 sudo apt install nginx
 ```
 
-## X.509 certificate
-
-> [!NOTE]
-> https://letsencrypt.org/ko/getting-started/
-> https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
-
-### Install snap
-
-> [!NOTE]
-> https://snapcraft.io/docs/installing-snap-on-ubuntu
-
-```bash
-sudo apt install snapd
-```
-<!-- sudo apt install snapd
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-snapd is already the newest version (2.58+18.04.1).
-snapd set to manually installed.
-The following packages were automatically installed and are no longer required:
-  aufs-tools bridge-utils cgroupfs-mount docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin pigz ubuntu-fan
-Use 'sudo apt autoremove' to remove them.
-0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded. 
--->
-
-> [!IMPORTANT]
-> in Ubuntu 22.04, snapd is already installed.
-
-### Remove Certbot-auto, Install Certbot
-
-```bash
-sudo apt-get remove certbot
-sudo snap install --classic certbot
-```
-
-<!-- sudo apt-get remove certbot 
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-Package 'certbot' is not installed, so not removed
-The following packages were automatically installed and are no longer required:
-  aufs-tools bridge-utils cgroupfs-mount docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin pigz ubuntu-fan
-Use 'sudo apt autoremove' to remove them.
-0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
--->
-
-<!-- sudo snap install --classic certbot 
-certbot 2.8.0 from Certbot Project (certbot-eff✓) installed
--->
-
-### Prepare the Certbot command
-
-```bash
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-```
-
-### Choose how you'd like to run Certbot
-
-Either get and install your certificates...
-
-```bash
-sudo certbot --nginx
-```
-
-> [!WARNING]
-> unexpected error occured.
+for https connection, X.509 certificate is required.
 
 ## Configuration NGINX
 
@@ -109,3 +120,9 @@ server {
   }
 }
 ```
+
+
+
+
+> [!NOTE]
+> The default location of HTML in Nginx is `/usr/share/nginx/html/`

@@ -10,12 +10,12 @@
 ### Domain mapping
 
 ask to KASI IT team,  
-`krsrc.kasi.re.kr` is mapped to `hanul` server, which is a gateway of krsrs testbed
+`krsrc.kasi.re.kr` is mapped to `hanul` server, which is a gateway of KRSRC testbed
 
 ### Domain certificate preparation
 
-Request a domain certificate for `kasi.re.kr` from the KASI IT team.
-The received certificate consists of `cert.pem` and `key.pem`.
+Request a domain certificate for `*.kasi.re.kr` from the KASI IT team.  
+The received certificate consists of `cert.pem` and `key.pem`.  
 Remove password from `key.pem`.
 
 ```bash

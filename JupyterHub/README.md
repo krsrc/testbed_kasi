@@ -1,4 +1,4 @@
-# Deployment of Jupyterhub on the K8s cluster
+# Jupyterhub installation on Rancher K3s cluster
 
 > [!NOTE]  
 > Installing JupyterHub.  
@@ -10,9 +10,7 @@
 > Chart default values:  
 > <https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/HEAD/jupyterhub/values.yaml>
 
-## Installing JupyterHub
-
-### Initialize a Helm chart configuration file
+## Initialize a Helm chart configuration file
 
 Just create an empty `jupyterhub-config.yaml` file with some helpful comments.
 
@@ -29,7 +27,7 @@ Just create an empty `jupyterhub-config.yaml` file with some helpful comments.
 #
 ```
 
-### Install JupyterHub
+## Install JupyterHub
 
 Make Helm aware of the JupyterHub Helm chart repository.
 
@@ -54,7 +52,7 @@ Install the chart configured by your `jupyterhub-config.yaml`.
 ```bash
 helm upgrade --cleanup-on-fail \
   --install jupyterhub jupyterhub/jupyterhub \
-  --namespace jupyterhub \
+  --namespace jhub \
   --create-namespace \
   --values jupyterhub-config.yaml
 ```
@@ -74,6 +72,8 @@ user-scheduler-7697c9b4ff-wbhq2   1/1     Running   0          4d19h
 ```
 
 I found the pending status of the `hub` pod.
+
+## Set external IP and port
 
 Check running svcs.
 
@@ -101,9 +101,9 @@ spec:
   ports:
   - name: http
     nodeport: 32246
-    port: 4321
+    port: {jhub_port}
   externalIPs:
-  - 192.168.10.1
+  - {master_ip}
 ```
 
 Delete `proxy-public` and apply `jupyterhub-proxy-public.yaml`
@@ -117,55 +117,18 @@ Check running svcs.
 
 ```bash
 kubectl get svc -n jupyterhub
-
-NAME           TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
-hub            ClusterIP      10.109.74.72     <none>         8081/TCP         3d20h
-proxy-api      ClusterIP      10.97.229.35     <none>         8001/TCP         3d20h
-proxy-public   LoadBalancer   10.105.111.229   192.168.10.1   4321:32246/TCP   4m46s
 ```
 
-`EXTERNAL-IP` is updated and `PORT(S)` is changed to `4321`.  
-However, still the `hub` pod is pending.
+> [!NOTE]
+> Using the Rancher dashboard, modifying port and adding external IP are too simple.  
+> Rancher > local > Service Discovery > Services > jhub:proxy-public > Edit Config
 
-I got two events for `jupyterhub`.
+## Testing installation
 
-```bash
-kubectl events -n jupyterhub
+Open JupyterHub on the browser.
 
-LAST SEEN                   TYPE      REASON             OBJECT                             MESSAGE
-4m5s (x1395 over 4d20h)     Warning   FailedScheduling   Pod/hub-dfcc6bc4b-v5ntt            0/3 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling..
-2m12s (x27845 over 4d20h)   Normal    FailedBinding      PersistentVolumeClaim/hub-db-dir   no persistent volumes available for this claim and no storage class is set
+```
+http://{master_ip}:{jhub_port}
 ```
 
-To resolve the `0/3 nodes are available` error, check the nodes status.
-
-```bash
-kubectl get node
-
-NAME          STATUS   ROLES           AGE   VERSION
-kmtnet-kasi   Ready    control-plane   42d   v1.26.7
-traodev2      Ready    <none>          42d   v1.26.7
-traodev3      Ready    <none>          42d   v1.26.7
-```
-
-We found there was no worker.  
-Change `ROLES` of two slave nodes to `worker`.
-
-```bash
-kubectl label node traodev2 node-role.kubernetes.io/worker=worker
-kubectl label node traodev3 node-role.kubernetes.io/worker=worker
-```
-
-Check the nodes status.
-
-```bash
-kubectl get node
-
-NAME          STATUS   ROLES           AGE   VERSION
-kmtnet-kasi   Ready    control-plane   42d   v1.26.7
-traodev2      Ready    worker          42d   v1.26.7
-traodev3      Ready    worker          42d   v1.26.7
-```
-
-Nov 7, 1 pm: The `hub` pod is still pending, and the same events are seen.
-
+Default account is id: `jovyan` and password: `jupyter`.

@@ -118,7 +118,7 @@ helm upgrade rancher ~/rancher \
 Initialize `Rancher`
 
 ```bash
-echo https://192.168.10.1.nip.io/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+echo https://{master_ip}.nip.io/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
 ```
 
 > [!NOTE]

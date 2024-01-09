@@ -327,7 +327,7 @@ kubectl get svc nginx-deployment
 ### When restart only
 
 ```bash
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.10.1
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={master_ip}
 
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
@@ -348,14 +348,14 @@ For Rancher-CA
 
 ```bash
 helm install rancher rancher-stable/rancher --namespace cattle-system \
-  --set hostname=192.168.10.1.nip.io --set bootstrapPassword=password
+  --set hostname={master_ip}.nip.io --set bootstrapPassword=password
 ```
 
 For self-CA
 
 ```bash
 helm install rancher rancher-stable/rancher --namespace cattle-system \
-  --set hostname=192.168.10.1.nip.io --set bootstrapPassword=password --set ingress.tls.source=secret
+  --set hostname={master_ip}.nip.io --set bootstrapPassword=password --set ingress.tls.source=secret
 ```
 
 After CA install
@@ -415,7 +415,7 @@ kubectl get ingress -A
 
 Wait until it has ADDRESS, and open browser.
 
-`https://192.168.10.1.nip.io`
+`https://{master_ip}.nip.io`
 
 ### K3s
 
@@ -429,7 +429,7 @@ sudo chmod 600 ~/.kube/config && export KUBECONFIG=~/.kube/config
 sudo vi /etc/systemd/system/k3s.service
 
 ExecStart=/usr/local/bin/k3s \
-    server --node-external-ip 192.168.10.1 \
+    server --node-external-ip {master_ip} \
 ```
 
 Worker node.
@@ -441,7 +441,7 @@ cat /var/lib/rancher/k3s/server/node-token
 ```
 
 ```bash
-curl -sfL https://get.k3s.io | K3S_URL=https://192.168.10.1:6443 K3S_TOKEN="<TOKEN>" sh -
+curl -sfL https://get.k3s.io | K3S_URL=https://{master_ip}:6443 K3S_TOKEN="<TOKEN>" sh -
 ```
 
 Nginx controller.

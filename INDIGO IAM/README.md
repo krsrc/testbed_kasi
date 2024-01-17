@@ -126,3 +126,173 @@ server {
 
 > [!NOTE]
 > The default location of HTML in Nginx is `/usr/share/nginx/html/`
+
+
+#working under root
+#data base configuration
+#install Maria DB
+sudo apt install mariadb-server
+
+#Change root password after installing MariaDB
+sudo mysql_secure_installation
+
+#One question from mysql is here: 
+#Normally, root should only be allowed to connect from 'localhost'.  This
+#ensures that someone cannot guess at the root password from the network.
+#Disallow root login remotely? Y
+
+#run and check mariaDB; https://velog.io/@mini_mouse_/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-mariadb-setting-s9mbiydb
+service mariadb start
+service mariadb status
+
+#create user for Indigo IAM https://wylee-developer.tistory.com/23
+mysql -u root -p changeme
+CREATE USER iam_test;
+
+#Check the exist user
+use mysql;
+select host, user from user where user='iam_test';
+
+#Create database 
+CREATE DATABASE iam_test_db CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+GRANT ALL PRIVILEGES on iam_test_db.* to 'iam_test'@'%' identified by 'aaitest#AAI';
+flush privileges; #reload previleges for table
+
+#Check the created DB
+show databases like '%iam_test%';
+
+#exit mariaDB
+
+#log-in iam_test_db with iam_test user
+mysql -u iam_test -p iam_test_db
+show tables;
+
+#Json Web Key configuration
+#Clone json-web-key-generator
+git clone https://github.com/mitreid-connect/json-web-key-generator
+
+#Maven is required as a build tool.
+#Maven 3.6.x or greater supporting JaVA 11 is required.
+sudo apt-get update && sudo apt-get upgrade
+apt install openjdk-11-jre-headless
+apt install maven
+
+mvn -v
+
+#move to directory json-web-key-generator
+#You will meet build error if you don't move to the directory where pom.xml located. 
+#pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90
+cd json-web-key-generator
+mvn pakage
+
+#Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
+mvn install
+mvn compiler:compile
+mvn org.apache.maven.plugins:maven-compiler-plugin:compile
+mvn org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile
+
+#re-run mvn package
+mvn package
+
+#generate key using JWK
+java -jar target/json-web-key-generator-0.9-SNAPSHOT-jar-with-dependencies.jar \
+  -t RSA -s 1024 -S -i rsa1
+
+#save the output from the generator; full key (from { after Full key:)
+vi keystore.jks
+
+#preparation for docker installation
+apt update
+
+#register docker GPG key
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+#repository setting
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+#install docker engine
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io
+#Docker version 24.0.7, build afdd53b
+
+#deployment with docker
+docker pull indigoiam/iam-login-service
+
+#hostname and port has been changed for mariaDB 
+hostname=IP address of the system where MariaDB has been installed. port=4567
+
+#configuration for Indigo IAM without connecting KAFE
+#make directories for env. file and keys
+ - for keys
+mkdir /var/lib/indigo/iam-login-service
+
+ - for env file
+mkdir /etc/sysconfig/iam-login-service
+
+ - move jks key to upper location
+mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
+
+#env file for Indigo IAM without connecting KAFE
+IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom
+IAM_HOST=krsrc.kasi.re.kr
+IAM_BASE_URL=https://krsrc.kasi.re.kr
+IAM_ISSUER=https://krsrc.kasi.re.kr
+IAM_USE_FORWARDED_HEADERS=true
+IAM_FORWARD_HEADERS_STRATEGY=native
+IAM_KEY_STORE_LOCATION=file:///keystore.jks
+IAM_JWK_DEFAULT_KEY_ID=rsa1
+IAM_DB_HOST=IP address of the system where MariaDB has been installed.
+IAM_DB_NAME=iam_test_db
+IAM_DB_PORT=4567
+IAM_DB_USERNAME=iam_test
+IAM_DB_PASSWORD=aaitest#AAI
+IAM_DB_VALIDATION_QUERY=SELECT 1
+IAM_ORGANISATION_NAME= krSRC
+IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
+
+#run docker
+docker network create krSRC_iam
+
+docker stop iam-login-service
+docker rm iam-login-service
+docker run -d \
+  --name iam-login-service \
+  --net=krSRC_iam -p 8080:8080 \
+  --env-file=/etc/sysconfig/iam-login-service \
+  -v /var/lib/indigo/iam-login-service/keystore.jks:/keystore.jks:ro \
+  --restart unless-stopped \
+  indigoiam/iam-login-service:v1.8.3
+docker ps
+docker logs iam-login-service
+
+#Federation certificate for KAFE (kafe-fed.crt) must be registered in SAML Java key store(JKS).
+cd /var/lib/indigo/iam-login-service/
+wget https://fedinfo.kreonet.net/cert/kafe-fed.crt
+openssl x509 -in kafe-fed.crt -out kafe-fed.der -outform der
+keytool -import -alias kafe-fed -keystore ./iam.jks -file kafe-fed.der
+# Trust this certificate? [no]: 에서 yes
+keytool -list -keystore ./iam.jks
+
+#re-run docker after kill the previous one
+- list ative dockers
+docker ps
+- stop and remove docker
+docker stop ****
+docker rm ****
+
+#ufw port 
+ufw allow 8080 ; for proxy?
+ufw allow 3306 ; for MariaDB
+
+#edit configuration for mariaDB to connect from 0.0.0.0
+/etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+#bind-address            = 127.0.0.1
+bind-address             = 0.0.0.0
+
+

@@ -236,8 +236,8 @@ mkdir /etc/sysconfig/iam-login-service
 mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
 
 #env file for Indigo IAM without connecting KAFE
-IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom
-IAM_HOST=krsrc.kasi.re.kr
+IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom \
+IAM_HOST=krsrc.kasi.re.kr \
 IAM_BASE_URL=https://krsrc.kasi.re.kr
 IAM_ISSUER=https://krsrc.kasi.re.kr
 IAM_USE_FORWARDED_HEADERS=true

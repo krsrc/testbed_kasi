@@ -130,7 +130,7 @@ server {
 ### Data base configuration
 MariaDB and Mysql 
 
-### install Maria DB
+### Install Maria DB
 ```
 sudo apt install mariadb-server
 ```
@@ -174,7 +174,7 @@ select host, user from user where user='iam_test';
 
 ```
 CREATE DATABASE iam_test_db CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-GRANT ALL PRIVILEGES on iam_test_db.* to 'iam_test'@'%' identified by 'aaitest#AAI';
+GRANT ALL PRIVILEGES on iam_test_db.* to 'iam_test'@'%' identified by 'userpassword';
 ```
 ### reload previleges for table
 ```
@@ -215,65 +215,87 @@ apt install maven
 ### Build using maven
 ```
 mvn -v
-```
-
-#move to directory json-web-key-generator
-#You will meet build error if you don't move to the directory where pom.xml located. 
-#pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90
 cd json-web-key-generator
 mvn pakage
-
-#Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
 mvn install
 mvn compiler:compile
 mvn org.apache.maven.plugins:maven-compiler-plugin:compile
 mvn org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile
+```
 
-#re-run mvn package
+> [!NOTE] Try and errors
+> You will meet build error if you don't move to the directory where pom.xml located.
+> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90
+> Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
+
+### Re-run maven package
+```
 mvn package
+```
 
-#generate key using JWK
+### Generate a Web-Key using Json-web-key-generator
+```
 java -jar target/json-web-key-generator-0.9-SNAPSHOT-jar-with-dependencies.jar \
-  -t RSA -s 1024 -S -i rsa1
+  -t RSA -s 1024 -S -i keyid
+```
 
-#save the output from the generator; full key (from { after Full key:)
+
+
+
+### Save the output from the generator
+Copy and save the contents from the output message from upper command.
+(from { after Full key:)
+```
 vi keystore.jks
+```
+### Preparation for docker installation
 
-#preparation for docker installation
-apt update
-
-#register docker GPG key
+### Register docker GPG key
+```
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
 
-#repository setting
+### Repository setting
+```
 echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
 
-#install docker engine
-apt-get update
+### Install docker engine
+```apt-get update
 apt-get install docker-ce docker-ce-cli containerd.io
-#Docker version 24.0.7, build afdd53b
+```
+Docker version 24.0.7, build afdd53b
 
-#deployment with docker
+### Deploy Indigo IAM with docker
+```
 docker pull indigoiam/iam-login-service
+```
 
-#hostname and port has been changed for mariaDB 
-hostname=IP address of the system where MariaDB has been installed. port=4567
+> [!NOTE]
+> Change Hostname and Port for mariaDB 
+> hostname=IP address of the system where MariaDB has been installed. 
+> port=4567
 
-#configuration for Indigo IAM without connecting KAFE
-#make directories for env. file and keys
+### Configuration for Indigo IAM without connecting KAFE
+### Make directories for env file and keystore
+
  - for keys
+```
 mkdir /var/lib/indigo/iam-login-service
-
+```
  - for env file
+```
 mkdir /etc/sysconfig/iam-login-service
-
- - move jks key to upper location
+```
+ - move jks key to the right path
+```
 mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
+```
 
-#env file for Indigo IAM without connecting KAFE
+### env file for Indigo IAM without connecting KAFE
 IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom \
 IAM_HOST=krsrc.kasi.re.kr \
 IAM_BASE_URL=https://krsrc.kasi.re.kr
@@ -281,19 +303,19 @@ IAM_ISSUER=https://krsrc.kasi.re.kr
 IAM_USE_FORWARDED_HEADERS=true
 IAM_FORWARD_HEADERS_STRATEGY=native
 IAM_KEY_STORE_LOCATION=file:///keystore.jks
-IAM_JWK_DEFAULT_KEY_ID=rsa1
+IAM_JWK_DEFAULT_KEY_ID=keyid
 IAM_DB_HOST=IP address of the system where MariaDB has been installed.
 IAM_DB_NAME=iam_test_db
 IAM_DB_PORT=4567
 IAM_DB_USERNAME=iam_test
-IAM_DB_PASSWORD=aaitest#AAI
+IAM_DB_PASSWORD=userpassword
 IAM_DB_VALIDATION_QUERY=SELECT 1
 IAM_ORGANISATION_NAME= krSRC
 IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
 
-#run docker
+### Run docker
+```
 docker network create krSRC_iam
-
 docker stop iam-login-service
 docker rm iam-login-service
 docker run -d \
@@ -305,32 +327,34 @@ docker run -d \
   indigoiam/iam-login-service:v1.8.3
 docker ps
 docker logs iam-login-service
+```
 
-#Federation certificate for KAFE (kafe-fed.crt) must be registered in SAML Java key store(JKS).
-cd /var/lib/indigo/iam-login-service/
-wget https://fedinfo.kreonet.net/cert/kafe-fed.crt
-openssl x509 -in kafe-fed.crt -out kafe-fed.der -outform der
-keytool -import -alias kafe-fed -keystore ./iam.jks -file kafe-fed.der
-# Trust this certificate? [no]: 에서 yes
-keytool -list -keystore ./iam.jks
-
-#re-run docker after kill the previous one
+### Re-run docker after kill the previous one
 - list ative dockers
+```
 docker ps
+```
 - stop and remove docker
-docker stop ****
-docker rm ****
-
-#ufw port 
+```
+docker stop containerID/Name
+docker rm containerID/Name
+```
+### Firewall setting for Indigo IAM  
+```
 ufw allow 8080 ; for proxy?
-ufw allow 3306 ; for MariaDB
+ufw allow 3306 ; for MariaDB 
+ufw allow 4567 ; for iam_test_db
+```
+3306 is a default port for MariaDB
 
-#edit configuration for mariaDB to connect from 0.0.0.0
-/etc/mysql/mariadb.conf.d/50-server.cnf
+### Edit MariaDB configuration to connect from the outside
+```
+vi /etc/mysql/mariadb.conf.d/50-server.cnf
+```
 
-# Instead of skip-networking the default is now to listen only on
-# localhost which is more compatible and is not less secure.
-#bind-address            = 127.0.0.1
-bind-address             = 0.0.0.0
+> # Instead of skip-networking the default is now to listen only on
+> # localhost which is more compatible and is not less secure.
+> #bind-address            = 127.0.0.1
+> bind-address             = 0.0.0.0
 
 

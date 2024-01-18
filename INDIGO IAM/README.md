@@ -127,55 +127,89 @@ server {
 > [!NOTE]
 > The default location of HTML in Nginx is `/usr/share/nginx/html/`
 
+### Data base configuration
+MariaDB and Mysql 
 
-#working under root
-#data base configuration
-#install Maria DB
+## install Maria DB
+```
 sudo apt install mariadb-server
+```
 
-#Change root password after installing MariaDB
+## Change root password after installing MariaDB
+```
 sudo mysql_secure_installation
+```
+ One imaportant setting from mysql is here:
+```
+Normally, root should only be allowed to connect from 'localhost'.
+This ensures that someone cannot guess at the root password from the network.
+Disallow root login remotely? Y
+```
 
-#One question from mysql is here: 
-#Normally, root should only be allowed to connect from 'localhost'.  This
-#ensures that someone cannot guess at the root password from the network.
-#Disallow root login remotely? Y
-
-#run and check mariaDB; https://velog.io/@mini_mouse_/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-mariadb-setting-s9mbiydb
+## Run and Check mariaDB
+```
 service mariadb start
 service mariadb status
+```
 
-#create user for Indigo IAM https://wylee-developer.tistory.com/23
+> [!NOTE]
+> https://velog.io/@mini_mouse_/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-mariadb-setting-s9mbiydb
+
+## Create a user for Indigo IAM 
+```
 mysql -u root -p changeme
 CREATE USER iam_test;
+```
 
-#Check the exist user
+> [!NOTE]
+> https://wylee-developer.tistory.com/23
+
+# Check the created user
+```
 use mysql;
 select host, user from user where user='iam_test';
+```
 
-#Create database 
+## Create database and give privileges
+
+```
 CREATE DATABASE iam_test_db CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 GRANT ALL PRIVILEGES on iam_test_db.* to 'iam_test'@'%' identified by 'aaitest#AAI';
-flush privileges; #reload previleges for table
+```
+# reload previleges for table
+```
+flush privileges; 
+```
 
-#Check the created DB
+# Check the created database
+```
 show databases like '%iam_test%';
+```
 
-#exit mariaDB
+# Quit mariaDB
+```
+exit
+```
 
-#log-in iam_test_db with iam_test user
+## log-in iam_test_db with iam_test user
+```
 mysql -u iam_test -p iam_test_db
 show tables;
+```
 
-#Json Web Key configuration
-#Clone json-web-key-generator
+### Json Web Key configuration
+## Clone json-web-key-generator
+```
 git clone https://github.com/mitreid-connect/json-web-key-generator
+```
 
-#Maven is required as a build tool.
-#Maven 3.6.x or greater supporting JaVA 11 is required.
+# Maven is required as a build tool.
+# Maven 3.6.x or greater supporting JaVA 11 is required.
+```
 sudo apt-get update && sudo apt-get upgrade
 apt install openjdk-11-jre-headless
 apt install maven
+```
 
 mvn -v
 

@@ -352,8 +352,6 @@ ufw allow 4567 ; for iam_test_db
 vi /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
 
-> # Instead of skip-networking the default is now to listen only on
-> # localhost which is more compatible and is not less secure.
 > #bind-address            = 127.0.0.1
 > bind-address             = 0.0.0.0
 

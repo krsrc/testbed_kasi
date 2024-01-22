@@ -275,7 +275,7 @@ docker pull indigoiam/iam-login-service
 ```
 
 > [!NOTE]
-> Change Hostname and Port for mariaDB 
+> Hostname and Port for mariaDB have been chaned for instance. 
 > hostname=IP address of the system where MariaDB has been installed. 
 > port=4567
 

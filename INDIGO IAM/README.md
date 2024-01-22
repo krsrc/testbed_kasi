@@ -296,6 +296,7 @@ mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
 ```
 
 ### env file for Indigo IAM without connecting KAFE
+```
 IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom \
 IAM_HOST=krsrc.kasi.re.kr \
 IAM_BASE_URL=https://krsrc.kasi.re.kr
@@ -312,7 +313,7 @@ IAM_DB_PASSWORD=userpassword
 IAM_DB_VALIDATION_QUERY=SELECT 1
 IAM_ORGANISATION_NAME= krSRC
 IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
-
+```
 ### Run docker
 ```
 docker network create krSRC_iam

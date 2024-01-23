@@ -137,9 +137,14 @@ include /etc/nginx/sites-available/default;
 
 ```
 
-
 > [!NOTE]
 > The default location of HTML in Nginx is `/usr/share/nginx/html/`
+
+Add host information
+```
+vi /etc/hosts
+127.0.0.1 krsrc.kasi.re.kr
+```
 
 ### Data base configuration
 MariaDB and Mysql 

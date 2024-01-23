@@ -219,14 +219,17 @@ OwIDAQAB
 -----END PUBLIC KEY-----
 ```
 
-When I just run `cvmfs_config chksetup`, a warning message is returned instead of `OK`.
+Stop and start (not restart) `autofs`, and check cvmfs_config.
 
 ```bash
+service autofs stop
+service autofs start
 cvmfs_config chksetup
 
-Warning: CernVM-FS map is not referenced from autofs maps (/etc/auto.master)
+OK
 ```
 
+<!-- 
 So I ran `cvmfs_config setup` first, and as a result, the `cvmfs.autofs` file was created in `/etc/auto.master.d/`.
 
 ```bash
@@ -262,9 +265,9 @@ It seems to have been mounted automatically in the previous step.
 mount -t cvmfs softdrive.nl /cvmfs/softdrive.nl
 
 Repository softdrive.nl is already mounted on /cvmfs/softdrive.nl
-```
+``` -->
 
-Many files are shown in the `/cvmfs/softdrive.nl` path.
+Check `/cvmfs/softdrive.nl` by `ls`.
 
 ```bash
 ls /cvmfs/softdrive.nl/
@@ -274,13 +277,13 @@ abalzer
 zwamborn
 ```
 
-Unmount `softdrive.nl`.  
+<!-- Unmount `softdrive.nl`.  
 However, even after `umount`, the files still remain in `/cvmfs/softdrive.nl`.
 
 ```bash
 umount /cvmfs/softdrive.nl
 ls /cvmfs/softdrive.nl
-```
+``` -->
 
 ## Configuration EESSI share on CVMFS
 
@@ -289,9 +292,12 @@ Configure EESSI share.
 ```bash
 wget https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi_latest_all.deb
 dpkg -i cvmfs-config-eessi_latest_all.deb
+service autofs stop
+service autofs start
+ls /cvmfs/pilot.eessi-hpc.org/
 ```
 
-Create client configuration file for CernVM-FS (no squid proxy, 10GB local CernVM-FS client cache).  
+<!-- Create client configuration file for CernVM-FS (no squid proxy, 10GB local CernVM-FS client cache).  
 Make sure that EESSI CernVM-FS repository is accessible.
 
 > [!WARNING]
@@ -306,10 +312,13 @@ cvmfs_config setup
 
 > [!IMPORTANT]
 > I ran the above command to overwrite the existing cvmfs configuration.  
-> It resulted in the removal of the mounted `softdrive.nl` repository in `/cvmfs`. 
+> It resulted in the removal of the mounted `softdrive.nl` repository in `/cvmfs`.  -->
+
+## Installation Singularity
 
 ```bash
-mkdir -p /cvmfs/pilot.eessi-hpc.org
-```
+wget https://github.com/sylabs/singularity/releases/download/v4.0.0/singularity-ce_4.0.0-focal_amd64.deb
+apt install ./singularity-ce_4.9.9-focal_amd64.deb
 
+```
 

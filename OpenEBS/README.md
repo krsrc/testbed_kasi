@@ -2,17 +2,17 @@
 
 ## Install OpenEBS Local Hostpath
 
-Make namespace.
+Setup helm repository.
 
 ```bash
-kubectl create namespace openebs
+helm repo add openebs https://openebs.github.io/charts
+helm repo update
 ```
 
-Install `OpenEBS` from url.
+Install OpenEBS helm chart with default values.
 
 ```bash
-kubectl apply -f https://openebs.github.io/charts/openebs-operator-lite.yaml
-kubectl apply -f https://openebs.github.io/charts/openebs-lite-sc.yaml
+helm install openebs --namespace openebs openebs/openebs --create-namespace
 ```
 
 

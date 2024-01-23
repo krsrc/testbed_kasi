@@ -92,27 +92,38 @@ sudo apt install nginx
 for https connection, X.509 certificate is required.
 
 ### Configuration NGINX
-
+Edit default file 
+```
+vi /etc/nginx/site-available/default
+```
+Contents of default file for redirecting and reverse proxy
 ```
 server {
   listen 80;
   listen [::]:80;
   server_name _;
-  return 301 https://$host$request_uri;
+  return 301 https://krsrc.kasi.re.kr;
 }
 
 server {
   listen        443 ssl;
-  server_name   YOUR_HOSTNAME_HERE;
+  listen        [::]:443 ssl;
+  server_name   krsrc.kasi.re.kr;
   access_log   /var/log/nginx/iam.access.log  combined;
 
-  ssl on;
+#  ssl on;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_certificate      /path/to/your/ssl/cert.pem;
-  ssl_certificate_key  /path/to/your/ssl/key.pem;
+  ssl_certificate      /etc/nginx/cert/cert.pem;
+  ssl_certificate_key  /etc/nginx/cert/cert.key;
+
+  ssl_session_cache shared:SSL:1m;
+  ssl_session_timeout 5m;
+
+  ssl_ciphers HIGH:MEDIUM:!SSLv2:!PSK:!SRP:!ADH:!AECDH;
+  ssl_prefer_server_ciphers on;
 
   location / {
-    proxy_pass              http://THE_IAM_APP_HOSTNAME_HERE:8080;
+    proxy_pass              http://krsrc.kasi.re.kr:8080/;
     proxy_set_header        X-Real-IP $remote_addr;
     proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header        X-Forwarded-Proto https;
@@ -120,8 +131,11 @@ server {
   }
 }
 ```
+Include 'default' to 'nginx.conf' by adding the following sentence within the HTTP block in 'nginx.conf'
+```
+include /etc/nginx/sites-available/default;
 
-
+```
 
 
 > [!NOTE]

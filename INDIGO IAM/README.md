@@ -94,7 +94,7 @@ for https connection, X.509 certificate is required.
 ### Configuration NGINX
 Edit default file 
 ```
-vi /etc/nginx/site-available/default
+vi /etc/nginx/sites-available/default
 ```
 Contents of default file for redirecting and reverse proxy
 ```

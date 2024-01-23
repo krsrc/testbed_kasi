@@ -238,8 +238,8 @@ mvn org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile
 ```
 
 > [!NOTE]
-> You will meet build error if you don't move to the directory where pom.xml located.
-> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90
+> You will meet build error if you don't move to the directory where pom.xml located.  
+> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90  
 > Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
 
 ### Re-run maven package

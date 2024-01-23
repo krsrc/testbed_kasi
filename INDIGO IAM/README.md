@@ -372,3 +372,48 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 > #bind-address            = 127.0.0.1
 > bind-address             = 0.0.0.0
 
+### env file for Indigo IAM with connecting KAFE
+```
+# Java VM arguments
+IAM_JAVA_OPTS=-Dspring.profiles.active=prod,saml,registration
+
+
+# Test Client configuration
+IAM_CLIENT_ID=client
+IAM_CLIENT_SECRET=secret
+IAM_CLIENT_SCOPES=openid profile email
+IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
+
+# Generic options
+IAM_BASE_URL=https://krsrc.kasi.or.kr
+IAM_ISSUER=https://krsrc.kasi.or.kr
+IAM_USE_FORWARDED_HEADERS=true
+IAM_FORWARD_HEADERS_STRATEGY=native
+IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
+IAM_KEY_STORE_LOCATION=file:///keystore.jks
+IAM_JWK_DEFAULT_KEY_ID=keyid
+IAM_JWT_DEFAULT_PROFILE=wlcg
+IAM_ORGANISATION_NAME=KRSRC
+
+# Database connection settings
+IAM_DB_HOST=IP address of the system where MariaDB has been installed.
+IAM_DB_PORT=4567
+IAM_DB_NAME=iam_test_db
+IAM_DB_USERNAME=iam_test
+IAM_DB_PASSWORD=aaitest#AAI
+IAM_DB_VALIDATION_QUERY=SELECT 1
+
+## SAML profile settings
+IAM_SAML_ENTITY_ID=https://krsrc.kasi.re.kr/sp/indigo
+IAM_SAML_LOGIN_BUTTON_TEXT=Sign in with KAFE
+IAM_SAML_KEYSTORE=file:///iam.jks
+IAM_SAML_KEYSTORE_PASSWORD=roalfoq#0585
+IAM_SAML_KEY_ID=iam
+IAM_SAML_KEY_PASSWORD=roalfoq#0585
+IAM_SAML_IDP_METADATA=https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml
+IAM_SAML_METADATA_REQUIRE_VALID_SIGNATURE=false
+IAM_SAML_MAX_ASSERTION_TIME=3000
+IAM_SAML_MAX_AUTHENTICATION_AGE=86400
+IAM_SAML_METADATA_LOOKUP_SERVICE_REFRESH_PERIOD_SEC=3600
+IAM_SAML_ID_RESOLVERS=eduPersonUniqueId,eduPersonTargetedId,eduPersonPrincipalName
+```

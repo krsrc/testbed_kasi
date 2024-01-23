@@ -358,21 +358,21 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 
 ### NGINX configuration for reverse proxy
 ```
-#server {
-#  listen 80;
-#  listen [::]:80;
-#  server_name _;
-#  return 301 https://krsrc.kasi.re.kr;
-#}
+server {
+  listen 80;
+  listen [::]:80;
+  server_name _;
+  return 301 https://krsrc.kasi.re.kr;
+}
 
 server {
   listen        443 ssl;
-#  listen        [::]:443 ssl;
+  listen        [::]:443 ssl;
   server_name   krsrc.kasi.re.kr;
   access_log   /var/log/nginx/iam.access.log  combined;
 
 #  ssl on;
-#  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
   ssl_certificate      /etc/nginx/cert/cert.pem;
   ssl_certificate_key  /etc/nginx/cert/cert.key;
 
@@ -385,11 +385,11 @@ server {
   location / {
 #     root html;
 #     index index.html index.htm;
-    proxy_pass              https://krsrc.kasi.re.kr:8080;
-#    proxy_set_header        X-Real-IP $remote_addr;
-#    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-#    proxy_set_header        X-Forwarded-Proto https;
-#    proxy_set_header        Host $http_host;
+    proxy_pass              http://krsrc.kasi.re.kr:8080/;
+    proxy_set_header        X-Real-IP $remote_addr;
+    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header        X-Forwarded-Proto https;
+    proxy_set_header        Host $http_host;
   }
 }
 ```

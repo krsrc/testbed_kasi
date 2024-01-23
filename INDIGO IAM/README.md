@@ -92,27 +92,38 @@ sudo apt install nginx
 for https connection, X.509 certificate is required.
 
 ### Configuration NGINX
-
+Edit default file 
+```
+vi /etc/nginx/sites-available/default
+```
+Contents of default file for redirecting and reverse proxy
 ```
 server {
   listen 80;
   listen [::]:80;
   server_name _;
-  return 301 https://$host$request_uri;
+  return 301 https://krsrc.kasi.re.kr;
 }
 
 server {
   listen        443 ssl;
-  server_name   YOUR_HOSTNAME_HERE;
+  listen        [::]:443 ssl;
+  server_name   krsrc.kasi.re.kr;
   access_log   /var/log/nginx/iam.access.log  combined;
 
-  ssl on;
+#  ssl on;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_certificate      /path/to/your/ssl/cert.pem;
-  ssl_certificate_key  /path/to/your/ssl/key.pem;
+  ssl_certificate      /etc/nginx/cert/cert.pem;
+  ssl_certificate_key  /etc/nginx/cert/cert.key;
+
+  ssl_session_cache shared:SSL:1m;
+  ssl_session_timeout 5m;
+
+  ssl_ciphers HIGH:MEDIUM:!SSLv2:!PSK:!SRP:!ADH:!AECDH;
+  ssl_prefer_server_ciphers on;
 
   location / {
-    proxy_pass              http://THE_IAM_APP_HOSTNAME_HERE:8080;
+    proxy_pass              http://krsrc.kasi.re.kr:8080/;
     proxy_set_header        X-Real-IP $remote_addr;
     proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header        X-Forwarded-Proto https;
@@ -120,10 +131,16 @@ server {
   }
 }
 ```
+Include 'default' to 'nginx.conf' by adding the following sentence within the HTTP block in 'nginx.conf'
+```
+include /etc/nginx/sites-available/default;
 
-
-
-
+```
+Add host information
+```
+vi /etc/hosts
+127.0.0.1 krsrc.kasi.re.kr
+```
 > [!NOTE]
 > The default location of HTML in Nginx is `/usr/share/nginx/html/`
 
@@ -223,9 +240,9 @@ mvn org.apache.maven.plugins:maven-compiler-plugin:compile
 mvn org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile
 ```
 
-> [!NOTE] Try and errors
-> You will meet build error if you don't move to the directory where pom.xml located.
-> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90
+> [!NOTE]
+> You will meet build error if you don't move to the directory where pom.xml located.  
+> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90  
 > Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
 
 ### Re-run maven package
@@ -238,7 +255,6 @@ mvn package
 java -jar target/json-web-key-generator-0.9-SNAPSHOT-jar-with-dependencies.jar \
   -t RSA -s 1024 -S -i keyid
 ```
-
 
 
 
@@ -356,40 +372,3 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 > #bind-address            = 127.0.0.1
 > bind-address             = 0.0.0.0
 
-### NGINX configuration for reverse proxy
-```
-server {
-  listen 80;
-  listen [::]:80;
-  server_name _;
-  return 301 https://krsrc.kasi.re.kr;
-}
-
-server {
-  listen        443 ssl;
-  listen        [::]:443 ssl;
-  server_name   krsrc.kasi.re.kr;
-  access_log   /var/log/nginx/iam.access.log  combined;
-
-#  ssl on;
-  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_certificate      /etc/nginx/cert/cert.pem;
-  ssl_certificate_key  /etc/nginx/cert/cert.key;
-
-  ssl_session_cache shared:SSL:1m;
-  ssl_session_timeout 5m;
-
-  ssl_ciphers HIGH:MEDIUM:!SSLv2:!PSK:!SRP:!ADH:!AECDH;
-  ssl_prefer_server_ciphers on;
-
-  location / {
-#     root html;
-#     index index.html index.htm;
-    proxy_pass              http://krsrc.kasi.re.kr:8080/;
-    proxy_set_header        X-Real-IP $remote_addr;
-    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header        X-Forwarded-Proto https;
-    proxy_set_header        Host $http_host;
-  }
-}
-```

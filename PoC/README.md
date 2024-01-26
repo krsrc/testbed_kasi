@@ -12,7 +12,7 @@
 - `CVMFS` is installed and mounted at `KRSRC03`, which is one of the worker nodes of the K3s cluster.
 - `KRSRC03` is a Ubuntu 22.04 system with 12 CPU cores, 16 GB RAM, and 480 GB storage.
 
-## Ubuntu 22 deployment
+## Ubuntu 22 deployment on K3s cluster
 
 Making YAML for `ubuntu` deployment: `pod_ubuntu_ubuntu-poc.yaml`.
 
@@ -48,11 +48,11 @@ Set root passwd
 passwd
 ```
 
-Install required apps.
+Install basic libraries and required apps.
 
 ```bash
 apt update
-apt install net-tools sudo vim
+apt install build-essential libncurses5 libncurses5-dev libssl-dev pkgconf net-tools sudo vim openssh-server
 ```
 
 Add user for ssh connection.
@@ -63,19 +63,14 @@ usermod -aG sudo {username}
 groups {username}
 ```
 
-Install ssh server.
-
-```bash
-apt update
-apt install openssh-server
-```
-
 Modify ssh port.
 
 ```bash
 vi /etc/ssh/sshd_config
 
 Port {sshd_port}
+
+service ssh restart
 ```
 
 Create LoadBalancer service.
@@ -102,13 +97,15 @@ status:
     - ip: {master_ip}
 ```
 
-Test to connection.
+Test to connection (from external client).
 
 ```bash
 ssh -X -p {sshd_external_port} manager@{master_ip}
 ```
 
-## FUSE installation
+## Installation on Ubuntu container
+
+### FUSE installation
 
 Start with root account.
 
@@ -160,10 +157,10 @@ Install `squid` and check http proxy port.
 ```bash
 apt install squid
 cat /etc/squid/squid.conf | grep http_port
-service squid restart
+service squid start
 ```
 
-## Apptainer installation
+### Apptainer installation
 
 ```bash
 apt update
@@ -171,10 +168,10 @@ apt install software-properties-common
 add-apt-repository ppa:apptainer/ppa
 apt update
 apt install apptainer
-apt install apptainer suid
+apt install apptainer-suid
 ```
 
-## CVMFS installation
+### CVMFS installation
 
 Add the CVMFS repository and install CFMFS.
 
@@ -222,6 +219,7 @@ OwIDAQAB
 Stop and start (not restart) `autofs`, and check cvmfs_config.
 
 ```bash
+cvmfs_config setup
 service autofs stop
 service autofs start
 cvmfs_config chksetup
@@ -271,10 +269,6 @@ Check `/cvmfs/softdrive.nl` by `ls`.
 
 ```bash
 ls /cvmfs/softdrive.nl/
-
-abalzer
-...
-zwamborn
 ```
 
 <!-- Unmount `softdrive.nl`.  
@@ -285,12 +279,12 @@ umount /cvmfs/softdrive.nl
 ls /cvmfs/softdrive.nl
 ``` -->
 
-## Configuration EESSI share on CVMFS
+### Configuration EESSI share on CVMFS
 
 Configure EESSI share.
 
 ```bash
-wget https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi_latest_all.deb
+wget https://github.com/EESSI/filesystem-layer/releases/download/latest/cvmfs-config-eessi_latest_all.deb
 dpkg -i cvmfs-config-eessi_latest_all.deb
 service autofs stop
 service autofs start
@@ -314,11 +308,132 @@ cvmfs_config setup
 > I ran the above command to overwrite the existing cvmfs configuration.  
 > It resulted in the removal of the mounted `softdrive.nl` repository in `/cvmfs`.  -->
 
-## Installation Singularity
+### Installation Singularity
 
 ```bash
 wget https://github.com/sylabs/singularity/releases/download/v4.0.0/singularity-ce_4.0.0-focal_amd64.deb
-apt install ./singularity-ce_4.9.9-focal_amd64.deb
-
+apt install ./singularity-ce_4.0.0-focal_amd64.deb
 ```
 
+## Test PoC 2
+
+From here, test with a regular user account, not root.
+
+- Check if the EESSI CVMFS share is mounted and has the DP3 and WSClean binaries:
+
+```bash
+ls /cvmfs/pilot.eessi-hpc.org/versions/2023.06/software/linux/x86_64/amd/zen2/software/DP3/6.0-foss-2022a/bin/
+
+DP3  DPPP  makesourcedb  msoverview  showsourcedb
+```
+
+```bash
+ls /cvmfs/pilot.eessi-hpc.org/versions/2023.06/software/linux/x86_64/amd/zen2/software/WSClean/3.4-foss-2022a/bin/
+
+chgcentre  wsclean  wsclean-mp
+```
+
+```bash
+ls -lah /cvmfs/softdrive.nl/oonk/SINGULARITY_IMAGES/C7_2_20_2_sml_env/
+
+total 853M
+drwxr-xr-x 2 cvmfs cvmfs 4.0K Nov 23  2017 .
+drwxr-xr-x 4 cvmfs cvmfs 4.0K Apr  1  2020 ..
+-rwxr-xr-x 1 cvmfs cvmfs 853M Nov 23  2017 lofar-2_20_2_c7_sml_env.simg
+```
+
+```bash
+ls -lah /cvmfs/softdrive.nl/surfadvisors-tkok/POC2/
+
+total 25K
+drwxr-xr-x  3 cvmfs cvmfs 4.0K Nov  7 16:19 .
+drwxr-xr-x  6 cvmfs cvmfs 4.0K Dec 13 13:18 ..
+-rwxr-xr-x  1 cvmfs cvmfs  859 Nov  7 16:19 3C196PANDEYJUL14.model
+drwxrwxr-x 21 cvmfs cvmfs 4.0K Nov  7 16:19 L229585_SB000_uv.dppp.MS
+-rwxr-xr-x  1 cvmfs cvmfs 1.2K Nov  7 16:19 command.sh
+-rwxr-xr-x  1 cvmfs cvmfs 2.0K Nov  7 16:19 fits_to_png.py
+-rw-r--r--  1 cvmfs cvmfs 6.8K Nov  7 16:19 process.py
+```
+
+```bash
+mkdir ~/test_poc2
+cp -r /cvmfs/softdrive.nl/surfadvisors-tkok/POC2/* ~/test_poc2/
+cd ~/test_poc2
+```
+
+```bash
+./command.sh
+
+START:
+ubuntu-poc
+
+Initilizing EESSI
+Found EESSI pilot repo @ /cvmfs/pilot.eessi-hpc.org/versions/2023.06!
+archspec says x86_64/intel/haswell
+Using x86_64/intel/haswell as software subdirectory.
+Using /cvmfs/pilot.eessi-hpc.org/versions/2023.06/software/linux/x86_64/intel/haswell/modules/all as the directory to be added to MODULEPATH.
+Found Lmod configuration file at /cvmfs/pilot.eessi-hpc.org/versions/2023.06/software/linux/x86_64/intel/haswell/.lmod/lmodrc.lua
+Initializing Lmod...
+Prepending /cvmfs/pilot.eessi-hpc.org/versions/2023.06/software/linux/x86_64/intel/haswell/modules/all to $MODULEPATH...
+Environment set up to use EESSI pilot software stack, have fun!
+Loading DP3 and WSClean
+Running calibration and imaging script
+Creating PNG image
+binding to: , /home,
+
+singularity exec ls: ,
+FATAL:   container creation failed: mount /etc/localtime->/etc/localtime error: while mounting /etc/localtime: mount source /etc/localtime doesn't exist
+
+singularity exec python process data script: , /home/manager/test_poc2/fits_to_png.py
+
+done
+```
+
+To resolve `/etc/localtime` error,
+
+> [!IMPORTANT]
+> <https://epcced.github.io/2021-07-29_Singularity_Online/07-singularity-images-building/index.html>
+
+```bash
+sudo apt install tzdata
+```
+
+Re-run from `Creating PNG image`:
+
+```bash
+Creating PNG image
+binding to: , /home
+
+singularity exec ls: ,
+Using /opt/lofar/ as root for the LOFAR Software Stack (created by JBR OONK UL/ASTRON Nov2017)
+3C196PANDEYJUL14.model
+L229585_SB000_uv.dppp.MS
+L229585_SB000_uv.dppp.MS.ccfa
+L229585_SB000_uv.dppp.MS.ccfa.app.parset
+L229585_SB000_uv.dppp.MS.ccfa.avg.log
+L229585_SB000_uv.dppp.MS.ccfa.avg.parset
+L229585_SB000_uv.dppp.MS.ccfa.cicc
+L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-dirty.fits
+L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-image.fits
+L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-model.fits
+L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-psf.fits
+L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-residual.fits
+L229585_SB000_uv.dppp.MS.ccfa.cicc.parset
+L229585_SB000_uv.dppp.MS.ccfa.ndp_app.log
+L229585_SB000_uv.dppp.MS.ccfa.ndp_pre.log
+L229585_SB000_uv.dppp.MS.ccfa.pre.parset
+L229585_SB000_uv.dppp.MS.inst
+cdmx.log
+command.sh
+fits_to_png.py
+fpng.log
+process.py
+
+singularity exec python process data script: , /home/manager/test_poc2/fits_to_png.py
+
+done
+```
+
+![created_PNG_image](L229585_SB000_uv.dppp.MS.ccfa.cicc.cimg-image.fits_sqrt.png)
+
+PoC2 test is DONE!!!

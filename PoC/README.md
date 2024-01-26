@@ -9,12 +9,15 @@
 
 ## Environment
 
-- `CVMFS` is installed and mounted at `KRSRC03`, which is one of the worker nodes of the K3s cluster.
-- `KRSRC03` is a Ubuntu 22.04 system with 12 CPU cores, 16 GB RAM, and 480 GB storage.
+- PoC2 test was performed on an `Ubuntu 22.04` pod (container) in the K3s cluster of the KRSRC testbed.
+- In this test, CVMFS was not deployed directly as a container in the Rancher-K3s cluster. Instead, it was deployed under a user Ubuntu container. 
+  - This may not be an efficient approach from the perspective of managing the entire K3s cluster. 
+  - Ideally, CVMFS should be set up in the K3s cluster as a storage class or persistent volume, allowing each user's Ubuntu to access it without additional installations. 
+  - However, this aspect was not addressed in this test.
 
 ## Ubuntu 22 deployment on K3s cluster
 
-Making YAML for `ubuntu` deployment: `pod_ubuntu_ubuntu-poc.yaml`.
+Making YAML for `ubuntu` deployment: `pod_default_ubuntu-poc.yaml`.
 
 ```yaml
 apiVersion: v1
@@ -36,23 +39,29 @@ spec:
   restartPolicy: Always
 ```
 
+Deploy the ubuntu pod.
+
+```bash
+kubectl apply -f pod_default_ubuntu-poc.yaml
+```
+
 Open terminal of `ubuntu-poc` pod.
 
 ```bash
 kubectl exec --stdin --tty ubuntu-poc -- /bin/bash
 ```
 
-Set root passwd
+Set root passwd.
 
 ```bash
 passwd
 ```
 
-Install basic libraries and required apps.
+Install basic libraries.
 
 ```bash
 apt update
-apt install build-essential libncurses5 libncurses5-dev libssl-dev pkgconf net-tools sudo vim openssh-server
+apt install net-tools sudo vim openssh-server
 ```
 
 Add user for ssh connection.

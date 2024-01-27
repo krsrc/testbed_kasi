@@ -80,7 +80,7 @@ iptables -t nat -L -n -v
 ## Installation
 
 > [!NOTE]
-> https://indigo-iam.github.io/v/v1.8.3/docs/getting-started/
+> <https://indigo-iam.github.io/v/v1.8.3/docs/getting-started/>
 
 ### Install Nginx
 
@@ -91,13 +91,17 @@ sudo apt install nginx
 
 for https connection, X.509 certificate is required.
 
-### Configuration NGINX
-Edit default file 
-```
+#### Configuration NGINX
+
+Edit default file.
+
+```bash
 vi /etc/nginx/sites-available/default
 ```
-Contents of default file for redirecting and reverse proxy
-```
+
+Contents of default file for redirecting and reverse proxy.
+
+```nginx configuration file
 server {
   listen 80;
   listen [::]:80;
@@ -106,10 +110,10 @@ server {
 }
 
 server {
-  listen        443 ssl;
-  listen        [::]:443 ssl;
-  server_name   krsrc.kasi.re.kr;
-  access_log   /var/log/nginx/iam.access.log  combined;
+  listen      443 ssl;
+  listen      [::]:443 ssl;
+  server_name krsrc.kasi.re.kr;
+  access_log  /var/log/nginx/iam.access.log  combined;
 
 #  ssl on;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
@@ -131,106 +135,131 @@ server {
   }
 }
 ```
-Include 'default' to 'nginx.conf' by adding the following sentence within the HTTP block in 'nginx.conf'
-```
-include /etc/nginx/sites-available/default;
 
+Include `default` to `nginx.conf` by adding the following sentence within the HTTP block in `nginx.conf`.
+
+```nginx configureation file
+include /etc/nginx/sites-available/default;
 ```
-Add host information
-```
+
+Add host information.
+
+```bash
 vi /etc/hosts
+
 127.0.0.1 krsrc.kasi.re.kr
 ```
+
 > [!NOTE]
 > The default location of HTML in Nginx is `/usr/share/nginx/html/`
 
 ### Data base configuration
-MariaDB and Mysql 
 
-### Install Maria DB
-```
+MariaDB and Mysql.
+
+#### Install Maria DB
+
+```bash
 sudo apt install mariadb-server
 ```
 
-### Change root password after installing MariaDB
-```
+#### Change root password after installing MariaDB
+
+One imaportant setting from mysql is here:
+
+```bash
 sudo mysql_secure_installation
-```
- One imaportant setting from mysql is here:
-```
+
 Normally, root should only be allowed to connect from 'localhost'.
 This ensures that someone cannot guess at the root password from the network.
 Disallow root login remotely? Y
 ```
 
-### Run and Check mariaDB
-```
+#### Run and Check mariaDB
+
+```bash
 service mariadb start
 service mariadb status
 ```
 
 > [!NOTE]
-> https://velog.io/@mini_mouse_/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-mariadb-setting-s9mbiydb
+> <https://velog.io/@mini_mouse_/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-mariadb-setting-s9mbiydb>
 
-### Create a user for Indigo IAM 
-```
+#### Create a user for Indigo IAM
+
+```bash
 mysql -u root -p changeme
+```
+
+```sql
 CREATE USER iam_test;
 ```
 
 > [!NOTE]
-> https://wylee-developer.tistory.com/23
+> <https://wylee-developer.tistory.com/23>
 
-### Check the created user
-```
+#### Check the created user
+
+```sql
 use mysql;
 select host, user from user where user='iam_test';
 ```
 
-### Create database and give privileges
+#### Create database and give privileges
 
-```
+```sql
 CREATE DATABASE iam_test_db CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 GRANT ALL PRIVILEGES on iam_test_db.* to 'iam_test'@'%' identified by 'userpassword';
 ```
-### reload previleges for table
-```
+
+#### reload previleges for table
+
+```sql
 flush privileges; 
 ```
 
-### Check the created database
-```
+#### Check the created database
+
+```sql
 show databases like '%iam_test%';
 ```
 
-### Quit mariaDB
-```
+#### Quit mariaDB
+
+```sql
 exit
 ```
 
-### log-in iam_test_db with iam_test user
-```
+#### log-in iam_test_db with iam_test user
+
+```bash
 mysql -u iam_test -p iam_test_db
+```
+
+```sql
 show tables;
 ```
 
 ### Json Web Key configuration
-### Clone json-web-key-generator
-```
+
+#### Clone json-web-key-generator
+
+```bash
 git clone https://github.com/mitreid-connect/json-web-key-generator
 ```
 
-Maven is required as a build tool.
+`Maven` is required as a build tool.
+`Maven 3.6.x` or greater supporting `JaVA 11` is required.
 
-Maven 3.6.x or greater supporting JaVA 11 is required.
-```
+```bash
 sudo apt-get update && sudo apt-get upgrade
 apt install openjdk-11-jre-headless
 apt install maven
 ```
 
-### Build using maven
-```
+#### Build using maven
+
+```bash
 mvn -v
 cd json-web-key-generator
 mvn pakage
@@ -242,77 +271,93 @@ mvn org.apache.maven.plugins:maven-compiler-plugin:2.0.2:compile
 
 > [!NOTE]
 > You will meet build error if you don't move to the directory where pom.xml located.  
-> pom.xml error-> https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90  
-> Lifecycle error -> http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
+> pom.xml error-> <https://doosicee.tistory.com/entry/Maven%EC%9D%98-%EC%84%A4%EC%A0%95%ED%8C%8C%EC%9D%BC-Pomxml%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90>
+> Lifecycle error -> <http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException>
 
-### Re-run maven package
-```
+#### Re-run maven package
+
+```bash
 mvn package
 ```
 
-### Generate a Web-Key using Json-web-key-generator
-```
+#### Generate a Web-Key using Json-web-key-generator
+
+```bash
 java -jar target/json-web-key-generator-0.9-SNAPSHOT-jar-with-dependencies.jar \
   -t RSA -s 1024 -S -i keyid
 ```
 
+#### Save the output from the generator
 
-
-### Save the output from the generator
 Copy and save the contents from the output message from upper command.
 (from { after Full key:)
-```
+
+```bash
 vi keystore.jks
 ```
+
 ### Preparation for docker installation
 
-### Register docker GPG key
-```
+#### Register docker GPG key
+
+```bash
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 ```
 
-### Repository setting
-```
+#### Repository setting
+
+```bash
 echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-### Install docker engine
-```apt-get update
-apt-get install docker-ce docker-ce-cli containerd.io
+#### Install docker engine
+
+```bash
+apt update
+apt install docker-ce docker-ce-cli containerd.io
 ```
+
 Docker version 24.0.7, build afdd53b
 
-### Deploy Indigo IAM with docker
-```
+#### Deploy Indigo IAM with docker
+
+```bash
 docker pull indigoiam/iam-login-service
 ```
 
 > [!NOTE]
-> Hostname and Port for mariaDB have been chaned for instance. 
-> hostname=IP address of the system where MariaDB has been installed. 
-> port=4567
+> Hostname and Port for mariaDB have been chaned for instance.
+> hostname=IP address of the system where MariaDB has been installed.
+> port={db_port}
 
 ### Configuration for Indigo IAM without connecting KAFE
-### Make directories for env file and keystore
 
- - for keys
-```
+#### Make directories for env file and keystore
+
+For keys
+
+```bash
 mkdir /var/lib/indigo/iam-login-service
 ```
- - for env file
-```
+
+For env file
+
+```bash
 mkdir /etc/sysconfig/iam-login-service
 ```
- - move jks key to the right path
-```
+
+Move `jks` key to the right path
+
+```bash
 mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
 ```
 
-### env file for Indigo IAM without connecting KAFE
-```
+#### env file for Indigo IAM without connecting KAFE
+
+```plain text
 IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom \
 IAM_HOST=krsrc.kasi.re.kr \
 IAM_BASE_URL=https://krsrc.kasi.re.kr
@@ -330,8 +375,10 @@ IAM_DB_VALIDATION_QUERY=SELECT 1
 IAM_ORGANISATION_NAME= KRSRC
 IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
 ```
-### Run docker
-```
+
+#### Run docker
+
+```bash
 docker network create krSRC_iam
 docker stop iam-login-service
 docker rm iam-login-service
@@ -346,37 +393,45 @@ docker ps
 docker logs iam-login-service
 ```
 
-### Re-run docker after kill the previous one
-- list ative dockers
-```
+#### Re-run docker after kill the previous one
+
+List ative dockers
+
+```bash
 docker ps
 ```
-- stop and remove docker
-```
+
+Stop and remove docker
+
+```bash
 docker stop containerID/Name
 docker rm containerID/Name
 ```
-### Firewall setting for Indigo IAM  
-```
-ufw allow 8080 ; for proxy?
-ufw allow 3306 ; for MariaDB 
-ufw allow 4567 ; for iam_test_db
-```
-3306 is a default port for MariaDB
 
-### Edit MariaDB configuration to connect from the outside
+#### Firewall setting for Indigo IAM  
+
+```bash
+ufw allow 8080  # for indigo iam proxy
+ufw allow 3306  # for MariaDB default 
+ufw allow {db_port}  # for iam_test_db
 ```
+
+`3306` is a default port for MariaDB
+
+#### Edit MariaDB configuration to connect from the outside
+
+```bash
 vi /etc/mysql/mariadb.conf.d/50-server.cnf
-```
 
-> #bind-address            = 127.0.0.1
-> bind-address             = 0.0.0.0
+# bind-address            = 127.0.0.1
+bind-address             = 0.0.0.0
+```
 
 ### env file for Indigo IAM with connecting KAFE
-```
+
+```plain text
 # Java VM arguments
 IAM_JAVA_OPTS=-Dspring.profiles.active=prod,saml,registration
-
 
 # Test Client configuration
 IAM_CLIENT_ID=client

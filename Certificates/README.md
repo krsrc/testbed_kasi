@@ -15,12 +15,12 @@ openssh rsa -in key.pem -out cert.key
 ## Convert `.pem` to `.crt`
 
 > [!CAUTION]
-> When the certificate is structured in a chain, 
-> the above command does not include the contents of the root and intermediate CAs in the output. 
-> While browsers usually have most well-known intermediate CAs, including the root CA, 
-> so do not encounter issues, 
-> but problems may arise when a full chain CA is required, as in the case like curl. 
-> Therefore, to establish a chain of trust, 
+> When the certificate is structured in a chain,
+> the above command does not include the contents of the root and intermediate CAs in the output.
+> While browsers usually have most well-known intermediate CAs, including the root CA,
+> so do not encounter issues,
+> but problems may arise when a full chain CA is required, as in the case like curl.
+> Therefore, to establish a chain of trust,
 > it is necessary to create a crt file that includes all CAs from each layer.
 >
 > ```bash
@@ -39,4 +39,4 @@ openssh x509 -inform PEM in cert.pem -out cert.crt
 > ln -s cert.pem cert.crt
 > ```
 >
-> In this case, there is no fullchain issue.
+> By doing thism, we can also avoid any errors related to the full chain.

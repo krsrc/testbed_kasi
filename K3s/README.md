@@ -136,3 +136,15 @@ Open `Rancher` dashboard on browser.
 https://{master_ip}.nip.io
 ```
 
+## Tips
+
+### Renewal Rancher CA
+
+```bash
+kubectl create secret tls tls-rancher-ingress \
+  --cert=tls.crt \
+  --key=tls.key \
+  --dry-run --save-config -o yaml | kubectl apply -f -
+```
+
+

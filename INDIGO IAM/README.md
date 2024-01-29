@@ -426,12 +426,28 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 # bind-address            = 127.0.0.1
 bind-address             = 0.0.0.0
 ```
+### Federation certificate for KAFE must be registered in SAML Java key store (JKS).
+```bash
+cd /var/lib/indigo/iam-login-service/
+wget https://fedinfo.kreonet.net/cert/certification #**.crt file
+openssl x509 -in kafe-fed.crt -out kafe-fed.der -outform der
+keytool -import -alias kafe-fed -keystore ./iam.jks -file kafe-fed.der
+```
+
+> [!NOTE]
+> Trust this certificate? [no]: yes
+> set the password for keystore; it is important information to set SAML for Indigo IAM
+
+### Check the key list
+keytool -list -keystore ./iam.jks
+
 
 ### env file for Indigo IAM with connecting KAFE
 
 ```plain text
 # Java VM arguments
-IAM_JAVA_OPTS=-Dspring.profiles.active=prod,saml,registration
+IAM_JAVA_OPTS=-Dspring.profiles.active=prod,saml,registration -Djava.security.egd=file:///dev/./urandom
+
 
 # Test Client configuration
 IAM_CLIENT_ID=client
@@ -440,18 +456,19 @@ IAM_CLIENT_SCOPES=openid profile email
 IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
 
 # Generic options
-IAM_BASE_URL=https://krsrc.kasi.or.kr
-IAM_ISSUER=https://krsrc.kasi.or.kr
+IAM_HOST=krsrc.kasi.re.kr
+IAM_BASE_URL=https://krsrc.kasi.re.kr
+IAM_ISSUER=https://krsrc.kasi.re.kr
 IAM_USE_FORWARDED_HEADERS=true
 IAM_FORWARD_HEADERS_STRATEGY=native
-IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
-IAM_KEY_STORE_LOCATION=file:///keystore.jks
-IAM_JWK_DEFAULT_KEY_ID=keyid
+IAM_KEY_STORE_LOCATION=file:///keys/keystore.jks
+IAM_JWK_DEFAULT_KEY_ID=rsa1
 IAM_JWT_DEFAULT_PROFILE=wlcg
 IAM_ORGANISATION_NAME=KRSRC
+IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
 
 # Database connection settings
-IAM_DB_HOST=IP address of the system where MariaDB has been installed.
+IAM_DB_HOST=192.168.0.206
 IAM_DB_PORT=4567
 IAM_DB_NAME=iam_test_db
 IAM_DB_USERNAME=iam_test
@@ -461,10 +478,10 @@ IAM_DB_VALIDATION_QUERY=SELECT 1
 ## SAML profile settings
 IAM_SAML_ENTITY_ID=https://krsrc.kasi.re.kr/sp/indigo
 IAM_SAML_LOGIN_BUTTON_TEXT=Sign in with KAFE
-IAM_SAML_KEYSTORE=file:///iam.jks
-IAM_SAML_KEYSTORE_PASSWORD=providedpassword
-IAM_SAML_KEY_ID=iam
-IAM_SAML_KEY_PASSWORD=providedpassword
+IAM_SAML_KEYSTORE=file:///keys/iam.jks
+IAM_SAML_KEYSTORE_PASSWORD=userpassword #that you set for 'iam.jkr'
+IAM_SAML_KEY_ID=providedid # for certificate
+IAM_SAML_KEY_PASSWORD=providedpassword # for certificate
 IAM_SAML_IDP_METADATA=https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml
 IAM_SAML_METADATA_REQUIRE_VALID_SIGNATURE=false
 IAM_SAML_MAX_ASSERTION_TIME=3000

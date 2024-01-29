@@ -358,48 +358,62 @@ mv /home/manager/keystore.jks /var/lib/indigo/iam-login-service
 #### env file for Indigo IAM without connecting KAFE
 
 ```plain text
-IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom \
-IAM_HOST=krsrc.kasi.re.kr \
+# Java VM arguments
+IAM_JAVA_OPTS=-Dspring.profiles.active=prod,registration -Djava.security.egd=file:///dev/./urandom
+
+# Generic options
+IAM_HOST=krsrc.kasi.re.kr
 IAM_BASE_URL=https://krsrc.kasi.re.kr
 IAM_ISSUER=https://krsrc.kasi.re.kr
 IAM_USE_FORWARDED_HEADERS=true
 IAM_FORWARD_HEADERS_STRATEGY=native
-IAM_KEY_STORE_LOCATION=file:///keystore.jks
-IAM_JWK_DEFAULT_KEY_ID=keyid
-IAM_DB_HOST=IP address of the system where MariaDB has been installed.
-IAM_DB_NAME=iam_test_db
-IAM_DB_PORT=4567
-IAM_DB_USERNAME=iam_test
-IAM_DB_PASSWORD=userpassword
-IAM_DB_VALIDATION_QUERY=SELECT 1
-IAM_ORGANISATION_NAME= KRSRC
+IAM_KEY_STORE_LOCATION=file:///keys/keystore.jks
+IAM_JWK_DEFAULT_KEY_ID=rsa1
+IAM_JWT_DEFAULT_PROFILE=wlcg
+IAM_ORGANISATION_NAME=KRSRC
 IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
+
+# Test Client configuration
+IAM_CLIENT_ID=client
+IAM_CLIENT_SECRET=secret
+IAM_CLIENT_SCOPES=openid profile email
+IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
+
+# Database connection settings
+IAM_DB_HOST={iam_db_host}
+IAM_DB_PORT={iam_db_port}
+IAM_DB_NAME={iam_db_name}
+IAM_DB_USERNAME={iam_db_userid}
+IAM_DB_PASSWORD={iam_db_passwd}
+IAM_DB_VALIDATION_QUERY=SELECT 1
+```
+
+#### Create docker network
+
+```bash
+docker network create krSRC_iam
 ```
 
 #### Run docker
 
 ```bash
-docker network create krSRC_iam
-docker stop iam-login-service
-docker rm iam-login-service
 docker run -d \
   --name iam-login-service \
   --net=krSRC_iam -p 8080:8080 \
   --env-file=/etc/sysconfig/iam-login-service \
-  -v /var/lib/indigo/iam-login-service/keystore.jks:/keystore.jks:ro \
+  -v /var/lib/indigo/iam-login-service/:/keys/:ro \
   --restart unless-stopped \
   indigoiam/iam-login-service:v1.8.3
+```
+
+#### List and check log active dockers
+
+```bash
 docker ps
 docker logs iam-login-service
 ```
 
-#### Re-run docker after kill the previous one
-
-List ative dockers
-
-```bash
-docker ps
-```
+#### Kill the active docker for re-running
 
 Stop and remove docker
 
@@ -426,62 +440,48 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 # bind-address            = 127.0.0.1
 bind-address             = 0.0.0.0
 ```
-### Federation certificate for KAFE must be registered in SAML Java key store (JKS).
+
+#### Federation certificate for KAFE must be registered in SAML Java key store (JKS)
+
 ```bash
 cd /var/lib/indigo/iam-login-service/
-wget https://fedinfo.kreonet.net/cert/**.crt #**.crt must be provided
-openssl x509 -in **.crt -out **.der -outform der
-keytool -import -alias ** -keystore ./iam.jks -file **.der
+wget https://fedinfo.kreonet.net/cert/{certificate_name}.crt #**.crt must be provided
+openssl x509 -in {certificate_name}.crt -out {certificate_name}.der -outform der
+keytool -import -alias {certificate_name} -keystore ./iam.jks -file {certificate_name}.der
 ```
 
 > [!NOTE]
 > Trust this certificate? [no]: yes  
 > Set the password for keystore; it is important information to set SAML for Indigo IAM
 
-### Check the key list
+#### Check the key list
+
+```bash
 keytool -list -keystore ./iam.jks
+```
 
-
-### env file for Indigo IAM with connecting KAFE
+#### env file for Indigo IAM with connecting KAFE
 
 ```plain text
 # Java VM arguments
 IAM_JAVA_OPTS=-Dspring.profiles.active=prod,saml,registration -Djava.security.egd=file:///dev/./urandom
 
+# Generic options
+...
 
 # Test Client configuration
-IAM_CLIENT_ID=client
-IAM_CLIENT_SECRET=secret
-IAM_CLIENT_SCOPES=openid profile email
-IAM_CLIENT_FORWARD_HEADERS_STRATEGY=native
-
-# Generic options
-IAM_HOST=krsrc.kasi.re.kr
-IAM_BASE_URL=https://krsrc.kasi.re.kr
-IAM_ISSUER=https://krsrc.kasi.re.kr
-IAM_USE_FORWARDED_HEADERS=true
-IAM_FORWARD_HEADERS_STRATEGY=native
-IAM_KEY_STORE_LOCATION=file:///keys/keystore.jks
-IAM_JWK_DEFAULT_KEY_ID=rsa1
-IAM_JWT_DEFAULT_PROFILE=wlcg
-IAM_ORGANISATION_NAME=KRSRC
-IAM_TOP_BAR_TITLE="INDIGO IAM for ${IAM_ORGANISATION_NAME}"
+...
 
 # Database connection settings
-IAM_DB_HOST=192.168.0.206
-IAM_DB_PORT=4567
-IAM_DB_NAME=iam_test_db
-IAM_DB_USERNAME=iam_test
-IAM_DB_PASSWORD=userpassword
-IAM_DB_VALIDATION_QUERY=SELECT 1
+...
 
 ## SAML profile settings
 IAM_SAML_ENTITY_ID=https://krsrc.kasi.re.kr/sp/indigo
 IAM_SAML_LOGIN_BUTTON_TEXT=Sign in with KAFE
 IAM_SAML_KEYSTORE=file:///keys/iam.jks
-IAM_SAML_KEYSTORE_PASSWORD=userpassword #that you set for 'iam.jkr'
-IAM_SAML_KEY_ID=providedid # for certificate
-IAM_SAML_KEY_PASSWORD=providedpassword # for certificate
+IAM_SAML_KEYSTORE_PASSWORD=userpassword  # that you set for 'iam.jkr'
+IAM_SAML_KEY_ID=providedid               # for certificate
+IAM_SAML_KEY_PASSWORD=providedpassword   # for certificate
 IAM_SAML_IDP_METADATA=https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml
 IAM_SAML_METADATA_REQUIRE_VALID_SIGNATURE=false
 IAM_SAML_MAX_ASSERTION_TIME=3000
@@ -489,3 +489,4 @@ IAM_SAML_MAX_AUTHENTICATION_AGE=86400
 IAM_SAML_METADATA_LOOKUP_SERVICE_REFRESH_PERIOD_SEC=3600
 IAM_SAML_ID_RESOLVERS=eduPersonUniqueId,eduPersonTargetedId,eduPersonPrincipalName
 ```
+

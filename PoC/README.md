@@ -10,9 +10,9 @@
 ## Environment
 
 - PoC2 test was performed on an `Ubuntu 22.04` pod (container) in the K3s cluster of the KRSRC testbed.
-- In this test, CVMFS was not deployed directly as a container in the Rancher-K3s cluster. Instead, it was deployed under a user Ubuntu container. 
-  - This may not be an efficient approach from the perspective of managing the entire K3s cluster. 
-  - Ideally, CVMFS should be set up in the K3s cluster as a storage class or persistent volume, allowing each user's Ubuntu to access it without additional installations. 
+- In this test, CVMFS was not deployed directly as a container in the Rancher-K3s cluster. Instead, it was deployed under a user Ubuntu container.
+  - This may not be an efficient approach from the perspective of managing the entire K3s cluster.
+  - Ideally, CVMFS should be set up in the K3s cluster as a storage class or persistent volume, allowing each user's Ubuntu to access it without additional installations.
   - However, this aspect was not addressed in this test.
 
 ## Ubuntu 22 deployment on K3s cluster

@@ -429,9 +429,9 @@ bind-address             = 0.0.0.0
 ### Federation certificate for KAFE must be registered in SAML Java key store (JKS).
 ```bash
 cd /var/lib/indigo/iam-login-service/
-wget https://fedinfo.kreonet.net/cert/certification #**.crt file
-openssl x509 -in kafe-fed.crt -out kafe-fed.der -outform der
-keytool -import -alias kafe-fed -keystore ./iam.jks -file kafe-fed.der
+wget https://fedinfo.kreonet.net/cert/**.crt #**.crt must be provided
+openssl x509 -in **.crt -out **.der -outform der
+keytool -import -alias ** -keystore ./iam.jks -file **.der
 ```
 
 > [!NOTE]

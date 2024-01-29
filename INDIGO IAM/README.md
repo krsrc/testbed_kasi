@@ -436,7 +436,7 @@ keytool -import -alias ** -keystore ./iam.jks -file **.der
 
 > [!NOTE]
 > Trust this certificate? [no]: yes  
-> set the password for keystore; it is important information to set SAML for Indigo IAM
+> Set the password for keystore; it is important information to set SAML for Indigo IAM
 
 ### Check the key list
 keytool -list -keystore ./iam.jks

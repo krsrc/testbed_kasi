@@ -500,8 +500,16 @@ vi /etc/postfix/generic
 #### Update Indigo IAM env file
 
 ```plain text
+...
 # Notification settings
-IAM
+IAM_NOTIFICATION_DISABLE=false
+IAM_NOTIFICATION_FROM=krsrc@kasi.re.kr
+IAM_NOTIFICATION_TASK_DELAY=5000
+IAM_NOTIFICATION_ADMIN_ADDRESS=krsrc@kasi.re.kr
+IAM_MAIL_HOST={host_ip}
+IAM_MAIL_PORT={host_smtp_port}
+IAM_MAIL_USERNAME={mail_account_id}
+IAM_MAIL_PASSWORD={mail_account_pqssword}
 ```
 
 ### SAML configuration for KAFE integration

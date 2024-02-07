@@ -333,6 +333,8 @@ docker pull indigoiam/iam-login-service
 > hostname=IP address of the system where MariaDB has been installed.
 > port={db_port}
 
+## Configurations
+
 ### Configuration for Indigo IAM without connecting KAFE
 
 #### Make directories for env file and keystore
@@ -440,6 +442,64 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 # bind-address            = 127.0.0.1
 bind-address             = 0.0.0.0
 ```
+
+### Mail configuration
+
+#### Install and configure `postfix`
+
+Install `postfix` on the indigo iam server (`krsrc06`).
+
+```bash
+apt update
+apt install postfix
+```
+
+Configure `postfix`.
+
+```bash
+vi /etc/postfix/main.cf
+
+myhostname = krsrc.kasi.re.kr
+mydomain = kasi.re.kr
+local_transport = error: this is a null client
+myorigin = $myhostname
+mynetworks = 127.0.0.0/8 172.0.0.0/8 [::1]/128
+relayhost = [{smtp_host}]:{smtp_port}
+disable_dns_lookups = yes
+
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_generic_maps = hash:/etc/postfix/generic
+```
+<!-- smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+
+smtp_tls_CApath = /etc/pki/tls/certs
+smtp_tls_CAfile = /etc/pki/tls/certs/ca-bundle.crt -->
+
+Set the SMTP SASL credentials.
+
+```bash
+vi /etc/postfix/sasl_passwd
+
+[{smtp_host}]:{smtp_port}  {approved_mail_address}:[{mail_password}]
+
+chmod 600 /etc/postfix/sasl_passwd
+systemctl restart postfix
+postmap /etc/postfix/sasl_passwd
+```
+
+Modify the sender mail address.
+
+```bash
+vi /etc/postfix/generic
+
+{indigo_iam_admin_mail_address} {approved_mail_address}
+```
+
+
+
+### SAML configuration for KAFE integration
 
 #### Federation certificate for KAFE must be registered in SAML Java key store (JKS)
 

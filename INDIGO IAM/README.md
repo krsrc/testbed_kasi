@@ -440,8 +440,33 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 # bind-address            = 127.0.0.1
 bind-address             = 0.0.0.0
 ```
+#### Generate self-signed key to register in SAML Java key store (JKS) 
+```bash
+openssl req -newkey rsa:2048 -nodes -x509 -days 3650 -keyout self-signed.key.pem \
+-out self-signed.cert.pem
+```
+> [!NOTE]
+> KR, DAEJEON, KASI, iam, password
+ 
+```bash
+openssl pkcs12 -export -inkey self-signed.key.pem\
+-name iam \
+-in self-signed.cert.pem \
+-out self-signed.p12
+```
 
-#### Federation certificate for KAFE must be registered in SAML Java key store (JKS)
+```bash
+keytool -importkeystore -destkeystore iam.jks \
+-srckeystore self-signed.p12 \
+-srcstoretype PKCS12
+```
+
+### Check the key list 
+```bash
+keytool -list -keystore -v iam.jks
+```
+
+#### Federation certificate for KAFE must be registered in SAML JKS
 
 ```bash
 cd /var/lib/indigo/iam-login-service/
@@ -453,12 +478,6 @@ keytool -import -alias {certificate_name} -keystore ./iam.jks -file {certificate
 > [!NOTE]
 > Trust this certificate? [no]: yes  
 > Set the password for keystore; it is important information to set SAML for Indigo IAM
-
-#### Check the key list
-
-```bash
-keytool -list -keystore ./iam.jks
-```
 
 #### env file for Indigo IAM with connecting KAFE
 
@@ -480,8 +499,8 @@ IAM_SAML_ENTITY_ID=https://krsrc.kasi.re.kr/sp/indigo
 IAM_SAML_LOGIN_BUTTON_TEXT=Sign in with KAFE
 IAM_SAML_KEYSTORE=file:///keys/iam.jks
 IAM_SAML_KEYSTORE_PASSWORD=userpassword  # that you set for 'iam.jkr'
-IAM_SAML_KEY_ID=providedid               # for certificate
-IAM_SAML_KEY_PASSWORD=providedpassword   # for certificate
+IAM_SAML_KEY_ID=userpassword               # for self-signed key
+IAM_SAML_KEY_PASSWORD=userpassword   # for self-signed key
 IAM_SAML_IDP_METADATA=https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml
 IAM_SAML_METADATA_REQUIRE_VALID_SIGNATURE=false
 IAM_SAML_MAX_ASSERTION_TIME=3000

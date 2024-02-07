@@ -500,7 +500,8 @@ vi /etc/postfix/generic
 #### Update Indigo IAM env file
 
 ```plain text
-
+# Notification settings
+IAM
 ```
 
 ### SAML configuration for KAFE integration

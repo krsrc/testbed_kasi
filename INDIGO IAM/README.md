@@ -443,6 +443,99 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 bind-address             = 0.0.0.0
 ```
 
+### Mail configuration
+
+#### Install and configure `postfix`
+
+Install `postfix` on the indigo iam server (`krsrc06`).
+
+```bash
+apt update
+apt install postfix
+```
+
+Configure `postfix`.
+
+```bash
+vi /etc/postfix/main.cf
+
+myhostname = krsrc.kasi.re.kr
+mydomain = kasi.re.kr
+local_transport = error: this is a null client
+myorigin = $myhostname
+mynetworks = 127.0.0.0/8 172.0.0.0/8 [::1]/128
+relayhost = [{smtp_host}]:{smtp_port}
+disable_dns_lookups = yes
+
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_generic_maps = hash:/etc/postfix/generic
+```
+<!-- smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+
+smtp_tls_CApath = /etc/pki/tls/certs
+smtp_tls_CAfile = /etc/pki/tls/certs/ca-bundle.crt -->
+
+Set the SMTP SASL credentials.
+
+```bash
+vi /etc/postfix/sasl_passwd
+
+[{smtp_host}]:{smtp_port}  {approved_mail_address}:[{mail_password}]
+
+chmod 600 /etc/postfix/sasl_passwd
+systemctl restart postfix
+postmap /etc/postfix/sasl_passwd
+```
+
+Modify the sender mail address.
+
+```bash
+vi /etc/postfix/generic
+
+{indigo_iam_admin_mail_address} {approved_mail_address}
+```
+
+#### Update Indigo IAM env file
+
+```plain text
+
+```
+
+### SAML configuration for KAFE integration
+
+#### Generate self-signed key to register in SAML Java key store (JKS)
+
+```bash
+openssl req -newkey rsa:2048 -nodes -x509 -days 3650 -keyout self-signed.key.pem \
+-out self-signed.cert.pem
+```
+
+> [!NOTE]
+> KR, DAEJEON, KASI, iam, password
+
+```bash
+openssl pkcs12 -export -inkey self-signed.key.pem\
+-name iam \
+-in self-signed.cert.pem \
+-out self-signed.p12
+```
+
+#### Federation certificate for KAFE must be registered in SAML Java key store (JKS)
+
+```bash
+keytool -importkeystore -destkeystore iam.jks \
+-srckeystore self-signed.p12 \
+-srcstoretype PKCS12
+```
+
+### Check the key list
+
+```bash
+keytool -list -keystore -v iam.jks
+```
+
 #### Federation certificate for KAFE must be registered in SAML JKS
 
 ```bash
@@ -485,4 +578,3 @@ IAM_SAML_MAX_AUTHENTICATION_AGE=86400
 IAM_SAML_METADATA_LOOKUP_SERVICE_REFRESH_PERIOD_SEC=3600
 IAM_SAML_ID_RESOLVERS=eduPersonUniqueId,eduPersonTargetedId,eduPersonPrincipalName
 ```
-

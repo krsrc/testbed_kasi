@@ -443,65 +443,7 @@ vi /etc/mysql/mariadb.conf.d/50-server.cnf
 bind-address             = 0.0.0.0
 ```
 
-### Mail configuration
-
-#### Install and configure `postfix`
-
-Install `postfix` on the indigo iam server (`krsrc06`).
-
-```bash
-apt update
-apt install postfix
-```
-
-Configure `postfix`.
-
-```bash
-vi /etc/postfix/main.cf
-
-myhostname = krsrc.kasi.re.kr
-mydomain = kasi.re.kr
-local_transport = error: this is a null client
-myorigin = $myhostname
-mynetworks = 127.0.0.0/8 172.0.0.0/8 [::1]/128
-relayhost = [{smtp_host}]:{smtp_port}
-disable_dns_lookups = yes
-
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
-smtp_generic_maps = hash:/etc/postfix/generic
-```
-<!-- smtp_use_tls = yes
-smtp_sasl_auth_enable = yes
-smtp_sasl_security_options = noanonymous
-
-smtp_tls_CApath = /etc/pki/tls/certs
-smtp_tls_CAfile = /etc/pki/tls/certs/ca-bundle.crt -->
-
-Set the SMTP SASL credentials.
-
-```bash
-vi /etc/postfix/sasl_passwd
-
-[{smtp_host}]:{smtp_port}  {approved_mail_address}:[{mail_password}]
-
-chmod 600 /etc/postfix/sasl_passwd
-systemctl restart postfix
-postmap /etc/postfix/sasl_passwd
-```
-
-Modify the sender mail address.
-
-```bash
-vi /etc/postfix/generic
-
-{indigo_iam_admin_mail_address} {approved_mail_address}
-```
-
-
-
-### SAML configuration for KAFE integration
-
-#### Federation certificate for KAFE must be registered in SAML Java key store (JKS)
+#### Federation certificate for KAFE must be registered in SAML JKS
 
 ```bash
 cd /var/lib/indigo/iam-login-service/
@@ -513,12 +455,6 @@ keytool -import -alias {certificate_name} -keystore ./iam.jks -file {certificate
 > [!NOTE]
 > Trust this certificate? [no]: yes  
 > Set the password for keystore; it is important information to set SAML for Indigo IAM
-
-#### Check the key list
-
-```bash
-keytool -list -keystore ./iam.jks
-```
 
 #### env file for Indigo IAM with connecting KAFE
 
@@ -540,8 +476,8 @@ IAM_SAML_ENTITY_ID=https://krsrc.kasi.re.kr/sp/indigo
 IAM_SAML_LOGIN_BUTTON_TEXT=Sign in with KAFE
 IAM_SAML_KEYSTORE=file:///keys/iam.jks
 IAM_SAML_KEYSTORE_PASSWORD=userpassword  # that you set for 'iam.jkr'
-IAM_SAML_KEY_ID=providedid               # for certificate
-IAM_SAML_KEY_PASSWORD=providedpassword   # for certificate
+IAM_SAML_KEY_ID=userpassword               # for self-signed key
+IAM_SAML_KEY_PASSWORD=userpassword   # for self-signed key
 IAM_SAML_IDP_METADATA=https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml
 IAM_SAML_METADATA_REQUIRE_VALID_SIGNATURE=false
 IAM_SAML_MAX_ASSERTION_TIME=3000

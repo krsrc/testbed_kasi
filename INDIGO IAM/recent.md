@@ -512,3 +512,29 @@ IAM_SAML_MAX_AUTHENTICATION_AGE=86400
 IAM_SAML_METADATA_LOOKUP_SERVICE_REFRESH_PERIOD_SEC=3600
 IAM_SAML_ID_RESOLVERS=eduPersonUniqueId,eduPersonTargetedId,eduPersonPrincipalName
 ```
+
+#### Metadata Update Scheduling
+
+Using `cron`, schedule metadata update with `wget` at everyday 4 am.
+
+```bash
+$ vi /var/lib/indigo/iam-login-service/renew_metadata.sh
+
+cd /var/lib/indigo/iam-login-service
+wget https://mds.kafe.or.kr/metadata/edugain-idp-signed.xml >> renew_metadata.log
+cp edugain-idp-signed.xml keys/. >> renew_metadata.log
+```
+
+Modify permission for execution.
+
+```bash
+chmod +x /var/lib/indigo/iam-login-service/renew_metadata.sh
+```
+
+Add `cron` schedule.
+
+```bash
+$ crontab -e
+
+0 4 * * * /var/lib/indigo/iam-login-service/renew_metadata.sh
+```

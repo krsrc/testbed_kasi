@@ -345,8 +345,8 @@ helm -n skaha-system upgrade --install --dependency-update --values <my-storage-
 
 #########################
 #uninstall all
-helm uninstall -n skaha-system storageui
-helm uninstall cavern
+helm uninstall -n skaha-system storage-ui
+helm uninstall -n skaha-system cavern
 helm uninstall -n skaha-system scienceportal
 helm uninstall -n skaha-system skaha
 helm uninstall -n skaha-system posixmapper

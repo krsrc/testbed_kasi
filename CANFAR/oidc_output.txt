@@ -1,0 +1,60 @@
+oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device orionkhw_uk
+Registering Client ...
+Generating account configuration ...
+accepted
+
+Using a browser on any device, visit:
+https://ska-iam.stfc.ac.uk/device
+
+And enter the code: TWZGWG
+Alternatively you can use the following QR code to visit the above listed URL.
+
+█████████████████████████████████
+██ ▄▄▄▄▄ █▀▄▄▀▄█  ██▄▄▀█ ▄▄▄▄▄ ██
+██ █   █ █▄   ▄█   ▄█▀██ █   █ ██
+██ █▄▄▄█ █ ▀█▀█▄▀    ▀▀█ █▄▄▄█ ██
+██▄▄▄▄▄▄▄█ ▀▄█ █▄▀▄▀▄▀ █▄▄▄▄▄▄▄██
+██ ▄▀ █▀▄▄██ ▄▀█ █▀▀▀▄█▀ ▄▄▀▄▄▀██
+██ ▀▀█▀▀▄▄ ▄▄  ▀██ █▀▄▀█▄  ▄  ███
+██▀█▀█▄█▄█▄▀▀▀ ▄█▄▀▄█▀  ▄▀█▄█▄▄██
+███▄▀▄  ▄▀█  ▀█ ▀▀▀▀ █▀█▄▀▄ ▄ ▄██
+███▀▀  ▄▄█▀▄▀ ██▀█▀ ▄▄▄ ▀▀█▀█▄▀██
+██▄█▄█▄█▄ ▄██▀▀▄▀█▀ ▀█ ▄▀ ▀██  ██
+██▄█▄▄▄▄▄█ ▀▄▄█ ▄█ ▀██ ▄▄▄ █ ▀▀██
+██ ▄▄▄▄▄ █▄  █▄ ▀▀▄███ █▄█ ▀▀ ███
+██ █   █ █▀█▄█▄▄█▄▄ █▀     ▀▀ ███
+██ █▄▄▄█ █▀ █ ▀▀ █  ▀█▀█▀█ ▄▄▀▄██
+██▄▄▄▄▄▄▄█▄██▄██▄█▄▄██▄█▄█▄██▄███
+█████████████████████████████████
+
+Error: Unknown cJSON Type
+Only saving the account configuration. You might want to save the following content to another location.
+
+{
+	"client_id":	"cbe3930e-cf0e-4c35-96df-4da2e0025d59",
+	"client_secret":	"ANdeFN47-fpEsPIYGZsm4BXB8bZjUnewP6PJFAQ9sbVizWN3m-bPTfEeSAenuMjkmvo4xB9JbaTKsEfjGjF-Dvc",
+	"client_name":	"oidc-agent:orionkhw_uk-kmtnet-kasi",
+	"redirect_uris":	["edu.kit.data.oidc-agent:/redirect", "http://localhost:8080", "http://localhost:10367", "http://localhost:4242"],
+	"grant_types":	["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"],
+	"response_types":	["token"],
+	"token_endpoint_auth_method":	"client_secret_basic",
+	"scope":	"entitlements address openid profile eduperson_entitlement wlcg storage.create:/ phone offline_access eduperson_scoped_affiliation eduperson_assurance aarc email wlcg.groups",
+	"reuse_refresh_token":	true,
+	"dynamically_registered":	true,
+	"clear_access_tokens_on_refresh":	true,
+	"require_auth_time":	false,
+	"registration_access_token":	"eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczpcL1wvc2thLWlhbS5zdGZjLmFjLnVrXC8iLCJhdWQiOiJjYmUzOTMwZS1jZjBlLTRjMzUtOTZkZi00ZGEyZTAwMjVkNTkiLCJpYXQiOjE3MDYxNjU5MzcsImp0aSI6ImVjNDg2MDU4LTYxMDMtNDI3MC1iYTQyLWFlNGE4ODkwODhiNSJ9.JF7MBMgh4BfpVDDP1OcdbLRDpaq8Z8KE126grs8UuSi1lvT5tEfpwvrpqbCjc2xX73Cohnm5t5wyouh9U7bdUOFlHy5lIYBkrbXEm3yGaZlEwk-95pOQznf_2S2p9pzJOgJVv8kOKM8KQXpNQcHShhMXAQzG7I0osbCl6Qf9qGXYdYA087e1gGaRSJIS-cIHUbj9Wlhjh28ay5TS3JdJfSmkCcOD_1kXpb-jfAhPKwmpx53BAgUxyDTWYxwfNV2NtJROovxludgsA42ijNfdJ_badFPIJFA0OdCLHcuASmNvPKrhblT2eFl0FzoeP634AZX_8sdPewisaVZRimLLdQ",
+	"registration_client_uri":	"https://ska-iam.stfc.ac.uk/iam/api/client-registration/cbe3930e-cf0e-4c35-96df-4da2e0025d59",
+	"created_at":	1706165937545,
+	"name":	"orionkhw_uk",
+	"issuer_url":	"https://ska-iam.stfc.ac.uk/",
+	"device_authorization_endpoint":	"",
+	"refresh_token":	"",
+	"cert_path":	"/etc/ssl/certs/ca-certificates.crt",
+	"audience":	""
+}
+
+Enter encryption password for account configuration 'orionkhw_uk': 
+Confirm encryption Password: 
+Everything setup correctly!
+

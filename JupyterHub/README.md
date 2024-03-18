@@ -127,7 +127,7 @@ kubectl get svc -n jupyterhub
 
 Open JupyterHub on the browser.
 
-```
+```bash
 http://{master_ip}:{jhub_port}
 ```
 

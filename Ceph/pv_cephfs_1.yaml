@@ -1,0 +1,40 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-cephfs
+  annotations:
+    pv.kubernetes.io/provisioned-by: rook-ceph.cephfs.csi.ceph.com
+  finalizers:
+    - kubernetes.io/pv-protection
+spec:
+  capacity:
+    storage: 10Gi
+  csi:
+    driver: rook-ceph.cephfs.csi.ceph.com
+    volumeHandle: cephfs-canfar-skaha
+    volumeAttributes:
+      clusterID: rook-ceph
+      fsName: canfar-cephfs
+      storage.kubernetes.io/csiProvisionerIdentity: 1654174264855-8081-rook.cephfs.csi.ceph.com
+      subvolumeName: subvolume
+      subvolumePath: >-
+        /volumes/csi/subvolume/919735b7-450f-4114-a3fa-3ab41d24856d
+      staticVolume: "true"
+      rootPath: /volumes/csi/subvolume/919735b7-450f-4114-a3fa-3ab41d24856d
+    nodeStageSecretRef:
+      name: rook-csi-cephfs-node-user
+      namespace: rook-ceph
+    controllerExpandSecretRef:
+      name: rook-csi-cephfs-provisioner
+      namespace: rook-ceph
+  accessModes:
+    - ReadWriteMany
+  claimRef:
+    kind: PersistentVolumeClaim
+    namespace: skaha-system
+    name: skaha-pvc
+    apiVersion: v1
+    resourceVersion: '49728'
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: rook-cephfs
+  volumeMode: Filesystem

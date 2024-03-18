@@ -1,0 +1,32 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-cephfs-workload
+spec:
+  capacity:
+    storage: 10Gi
+  csi:
+    driver: rook-ceph.cephfs.csi.ceph.com
+    volumeHandle: cephfs-canfar-skaha-workload
+    volumeAttributes:
+      clusterID: rook-ceph
+      fsName: canfar-cephfs
+      storage.kubernetes.io/csiProvisionerIdentity: 1654174264855-8081-rook.cephfs.csi.ceph.com
+      subvolumeName: subvolume
+      subvolumePath: >-
+        /volumes/csi/subvolume/919735b7-450f-4114-a3fa-3ab41d24856d
+      rootPath: >-
+        /volumes/csi/subvolume/919735b7-450f-4114-a3fa-3ab41d24856d
+      staticVolume: "true"
+      rootPath: /volumes/csi/subvolume/919735b7-450f-4114-a3fa-3ab41d24856d
+    nodeStageSecretRef:
+      name: rook-csi-cephfs-node-user
+      namespace: rook-ceph
+    controllerExpandSecretRef:
+      name: rook-csi-cephfs-provisioner
+      namespace: rook-ceph
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: rook-cephfs
+  volumeMode: Filesystem

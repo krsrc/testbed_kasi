@@ -66,7 +66,7 @@ sudo service ssh restart
 ## Chrome
 
 > [!NOTE]
-> https://www.xda-developers.com/how-install-chrome-ubuntu/
+> <https://www.xda-developers.com/how-install-chrome-ubuntu>
 
 download chrome pkg
 
@@ -79,6 +79,3 @@ install chrome
 ```bash
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 ```
-
-
-
